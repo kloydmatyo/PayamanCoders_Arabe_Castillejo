@@ -1,5 +1,12 @@
 # PayamanCoders_Arabe_Castillejo
 
+## Team Members & Roles
+
+- **Frontend Developer:** Christian John Castillejo
+- **Backend Developer:** Cloyd Matthew Arabe
+
+---
+
 ## WorkQit Platform Overview
 
 WorkQit is a dual-purpose platform designed to bridge the gap between education, opportunity, and meaningful employment — especially for individuals from low-income communities and recent graduates. Our mission is to connect users with short-term jobs, remote internships, and apprenticeships across sustainable and emerging industries.
@@ -44,10 +51,3 @@ By combining income-generating opportunities with free training and upskilling, 
 ---
 
 Whether you're just starting your career or seeking a stepping stone into the green and tech-forward economy, WorkQit is your partner in growth.
-
----
-
-## Team Members & Roles
-
-- **Frontend Developer:** Christian John Castillejo
-- **Backend Developer:** Cloyd Matthew Arabe
