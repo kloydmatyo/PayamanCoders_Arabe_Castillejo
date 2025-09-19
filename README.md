@@ -189,6 +189,8 @@ By combining income-generating opportunities with free training and upskilling, 
 - Node.js 18+
 - npm or yarn
 - MongoDB Atlas account
+- Visual Studio Code (recommended)
+- MongoDB for VS Code extension (optional but recommended)
 
 ### Installation
 
@@ -230,8 +232,157 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 npm run dev
 ```
 
-5. **Open your browser**
+5. **Test database connection**
+
+```bash
+# Test MongoDB connection
+npm run test:db
+
+# Or test via API endpoint (after starting dev server)
+# Visit: http://localhost:3000/api/test-db
+```
+
+6. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 🗃️ MongoDB for VS Code Setup
+
+### Installing MongoDB Extension
+
+1. **Install the Extension**
+
+   - Open VS Code
+   - Go to Extensions (Ctrl+Shift+X)
+   - Search for "MongoDB for VS Code"
+   - Install the official MongoDB extension
+
+2. **Connect to MongoDB Atlas**
+   - Click the MongoDB icon in the sidebar
+   - Click "Add Connection"
+   - Choose "Connect with Connection String"
+   - Enter your connection string:
+   ```
+   mongodb+srv://202311563_db_user:x3RmWVd0saZBsAaR@workqit.y7aenop.mongodb.net/
+   ```
+
+### Using MongoDB Extension Features
+
+#### 🔍 **Database Explorer**
+
+- Browse databases and collections
+- View document structure
+- Navigate through your data visually
+
+#### 📝 **MongoDB Playground**
+
+- Write and execute MongoDB queries
+- Test aggregation pipelines
+- Prototype database operations
+
+#### 📊 **Schema Analysis**
+
+- Analyze collection schemas
+- Understand data patterns
+- Identify optimization opportunities
+
+### Sample MongoDB Playground Queries
+
+Create a new MongoDB Playground file (`.mongodb` extension) and try these queries:
+
+```javascript
+// Use the WorkQit database
+use("workqit");
+
+// Find all users
+db.users.find({});
+
+// Find job seekers only
+db.users.find({ role: "job_seeker" });
+
+// Find all active jobs
+db.jobs.find({ status: "active" });
+
+// Find remote jobs
+db.jobs.find({ remote: true });
+
+// Aggregate jobs by type
+db.jobs.aggregate([
+  {
+    $group: {
+      _id: "$type",
+      count: { $sum: 1 },
+    },
+  },
+]);
+
+// Find jobs with specific skills
+db.jobs.find({
+  skills: { $in: ["JavaScript", "React", "Node.js"] },
+});
+
+// Create indexes for better performance
+db.jobs.createIndex({ skills: 1 });
+db.jobs.createIndex({ location: 1, remote: 1 });
+db.users.createIndex({ email: 1 }, { unique: true });
+```
+
+### VS Code MongoDB Extension Benefits
+
+#### 🚀 **Development Productivity**
+
+- IntelliSense for MongoDB queries
+- Syntax highlighting for MongoDB operations
+- Real-time query results
+
+#### 🔧 **Database Management**
+
+- Create and drop collections
+- Insert, update, and delete documents
+- Export query results
+
+#### 📈 **Performance Monitoring**
+
+- Query execution statistics
+- Index usage analysis
+- Performance insights
+
+### Troubleshooting MongoDB Connection
+
+#### Common Issues:
+
+1. **Connection Timeout**
+
+   ```bash
+   # Check if your IP is whitelisted in MongoDB Atlas
+   # Network Access → Add IP Address → Add Current IP Address
+   ```
+
+2. **Authentication Failed**
+
+   ```bash
+   # Verify username and password in connection string
+   # Database Access → Edit user → Reset password if needed
+   ```
+
+3. **Database Not Found**
+   ```bash
+   # The database will be created automatically when you insert the first document
+   # Make sure the database name in your connection string matches your code
+   ```
+
+### MongoDB Atlas Dashboard
+
+Access your MongoDB Atlas dashboard at: https://cloud.mongodb.com
+
+#### Key Features:
+
+- **Metrics**: Monitor database performance
+- **Data Explorer**: Browse collections via web interface
+- **Network Access**: Manage IP whitelist
+- **Database Access**: Manage users and permissions
+- **Backup**: Configure automated backups
 
 ---
 
@@ -274,6 +425,9 @@ npm run dev          # Start development server
 npm run build        # Build for production
 npm run start        # Start production server
 npm run lint         # Run ESLint
+
+# Database Testing
+npm run test:db      # Test MongoDB connection via CLI
 ```
 
 ---
