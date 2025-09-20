@@ -55,16 +55,17 @@ export async function POST(request: NextRequest) {
     console.log('🎫 Token payload:', tokenPayload)
     
     if (!process.env.JWT_SECRET) {
-      console.error('❌ JWT_SECRET not found in environment variables')
+      console.error('❌ Missing JWT_SECRET in environment variables')
       return NextResponse.json(
-        { error: 'Server configuration error' },
+        { error: 'Server configuration error: missing JWT_SECRET' },
         { status: 500 }
       )
     }
+    const JWT_SECRET = process.env.JWT_SECRET
 
     const token = jwt.sign(
       tokenPayload,
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '7d' }
     )
     console.log('✅ JWT token created')
@@ -83,9 +84,9 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60, // 7 days in seconds (Next expects seconds)
       path: '/',
-      domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost'
+      // omit domain in development
     })
     console.log('✅ Cookie set successfully')
 
