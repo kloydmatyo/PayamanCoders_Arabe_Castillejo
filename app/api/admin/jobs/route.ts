@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     // Get jobs with pagination and populate employer
     const jobs = await Job.find(query)
-      .populate('employer', 'firstName lastName email')
+      .populate('employerId', 'firstName lastName email')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
@@ -60,10 +60,11 @@ export async function GET(request: NextRequest) {
     const formattedJobs = await Promise.all(
       jobs.map(async (job) => {
         const Application = (await import('@/models/Application')).default
-        const applicantCount = await Application.countDocuments({ job: job._id })
+        const applicantCount = await Application.countDocuments({ jobId: job._id })
         
         return {
           ...job,
+          employer: job.employerId, // Map employerId to employer for frontend compatibility
           applicantCount,
           views: job.views || 0
         }
