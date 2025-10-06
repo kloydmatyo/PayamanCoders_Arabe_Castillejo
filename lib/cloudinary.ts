@@ -34,8 +34,8 @@ export async function uploadToCloudinary(
   const {
     folder = 'workqit/resumes',
     resource_type = 'auto',
-    allowed_formats = ['pdf', 'doc', 'docx'],
-    max_bytes = 5 * 1024 * 1024, // 5MB default
+    allowed_formats = ['pdf', 'docx'],
+    max_bytes = 10 * 1024 * 1024, // 10MB default
     public_id
   } = options;
 
@@ -102,20 +102,20 @@ export function getCloudinaryUrl(publicId: string, options: any = {}): string {
  * Validate file type and size
  */
 export function validateFile(file: File): { valid: boolean; error?: string } {
-  const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-  const maxSize = 5 * 1024 * 1024; // 5MB
+  const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+  const maxSize = 10 * 1024 * 1024; // 10MB
 
   if (!allowedTypes.includes(file.type)) {
     return {
       valid: false,
-      error: 'Invalid file type. Only PDF, DOC, and DOCX files are allowed.',
+      error: 'Invalid file type. Only PDF and DOCX files are allowed.',
     };
   }
 
   if (file.size > maxSize) {
     return {
       valid: false,
-      error: 'File size too large. Maximum size is 5MB.',
+      error: 'File size too large. Maximum size is 10MB.',
     };
   }
 

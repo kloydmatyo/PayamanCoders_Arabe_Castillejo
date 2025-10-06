@@ -7,7 +7,7 @@ interface ResumeData {
   filename: string;
   url: string;
   size: number;
-  type: string;
+  type?: string;
   uploadedAt: string;
 }
 
@@ -31,7 +31,7 @@ export default function ResumeUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (!bytes || bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -39,20 +39,20 @@ export default function ResumeUpload({
   };
 
   const validateFile = (file: File): { valid: boolean; error?: string } => {
-    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const maxSize = 10 * 1024 * 1024; // 10MB
 
     if (!allowedTypes.includes(file.type)) {
       return {
         valid: false,
-        error: 'Invalid file type. Only PDF, DOC, and DOCX files are allowed.',
+        error: 'Invalid file type. Only PDF and DOCX files are allowed.',
       };
     }
 
     if (file.size > maxSize) {
       return {
         valid: false,
-        error: 'File size too large. Maximum size is 5MB.',
+        error: 'File size too large. Maximum size is 10MB.',
       };
     }
 
@@ -187,8 +187,8 @@ export default function ResumeUpload({
               <div>
                 <h4 className="text-sm font-medium text-gray-900">{currentResume.filename}</h4>
                 <p className="text-sm text-gray-500">
-                  {formatFileSize(currentResume.size)} • {currentResume.type.toUpperCase()} • 
-                  Uploaded {new Date(currentResume.uploadedAt).toLocaleDateString()}
+                  {formatFileSize(currentResume.size)} • {currentResume.type?.toUpperCase() || 'DOCUMENT'} • 
+                  Uploaded {currentResume.uploadedAt ? new Date(currentResume.uploadedAt).toLocaleDateString() : 'Recently'}
                 </p>
               </div>
             </div>
@@ -230,7 +230,7 @@ export default function ResumeUpload({
                 Drag and drop or click to select
               </span>
               <span className="mt-1 block text-xs text-gray-400">
-                PDF, DOC, DOCX up to 5MB
+                PDF, DOCX up to 10MB
               </span>
             </label>
             <input
@@ -239,7 +239,7 @@ export default function ResumeUpload({
               name="resume-upload"
               type="file"
               className="sr-only"
-              accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               onChange={handleFileSelect}
               disabled={uploading}
             />
@@ -261,7 +261,7 @@ export default function ResumeUpload({
             name="resume-replace"
             type="file"
             className="sr-only"
-            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             onChange={handleFileSelect}
             disabled={uploading}
           />

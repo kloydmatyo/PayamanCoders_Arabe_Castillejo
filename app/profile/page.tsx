@@ -245,7 +245,7 @@ export default function ProfilePage() {
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">Resume</h2>
             <p className="text-sm text-gray-600 mt-1">
-              Upload your resume to make it easier for employers to learn about your background
+              <span className="text-red-600 font-medium">Required:</span> Upload your resume to apply for jobs. Only PDF and DOCX files are accepted (max 10MB).
             </p>
           </div>
           <div className="p-6">

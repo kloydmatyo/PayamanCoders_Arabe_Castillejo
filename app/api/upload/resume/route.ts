@@ -38,19 +38,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file
-    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const maxSize = 10 * 1024 * 1024; // 10MB
 
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Invalid file type. Only PDF, DOC, and DOCX files are allowed.' },
+        { error: 'Invalid file type. Only PDF and DOCX files are allowed.' },
         { status: 400 }
       );
     }
 
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'File size too large. Maximum size is 5MB.' },
+        { error: 'File size too large. Maximum size is 10MB.' },
         { status: 400 }
       );
     }
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     const uploadResult = await uploadToCloudinary(buffer, {
       folder: 'workqit/resumes',
       public_id: `resume_${user._id}_${Date.now()}`,
-      allowed_formats: ['pdf', 'doc', 'docx'],
+      allowed_formats: ['pdf', 'docx'],
       max_bytes: maxSize,
     });
 

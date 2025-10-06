@@ -290,7 +290,7 @@ export default function JobApplicantsPage() {
                       {applicant.application.resume.filename}
                     </a>
                     <span className="text-gray-500 text-xs">
-                      (Uploaded {new Date(applicant.application.resume.uploadedAt).toLocaleDateString()})
+                      (Uploaded {applicant.application.resume.uploadedAt ? new Date(applicant.application.resume.uploadedAt).toLocaleDateString() : 'Recently'})
                     </span>
                   </div>
                 </div>

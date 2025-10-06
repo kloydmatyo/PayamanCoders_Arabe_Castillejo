@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { MapPin, Clock, DollarSign, Building, Users, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import JobApplicationModal from '@/components/JobApplicationModal'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface Job {
   _id: string
@@ -31,16 +33,21 @@ interface Job {
 export default function JobDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { user } = useAuth()
   const [job, setJob] = useState<Job | null>(null)
   const [loading, setLoading] = useState(true)
-  const [applying, setApplying] = useState(false)
   const [error, setError] = useState('')
+  const [showApplicationModal, setShowApplicationModal] = useState(false)
+  const [hasApplied, setHasApplied] = useState(false)
 
   useEffect(() => {
     if (params.id) {
       fetchJob(params.id as string)
+      if (user?.role === 'job_seeker') {
+        checkApplicationStatus(params.id as string)
+      }
     }
-  }, [params.id])
+  }, [params.id, user])
 
   const fetchJob = async (jobId: string) => {
     try {
@@ -59,35 +66,39 @@ export default function JobDetailPage() {
     }
   }
 
-  const handleApply = async () => {
-    if (!job) return
-
-    setApplying(true)
+  const checkApplicationStatus = async (jobId: string) => {
     try {
-      const response = await fetch(`/api/jobs/${job._id}/apply`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          coverLetter: 'I am interested in this position and would like to apply.'
-        }),
+      const response = await fetch('/api/dashboard/applications', {
+        credentials: 'include',
       })
-
-      const data = await response.json()
-
+      
       if (response.ok) {
-        alert('Application submitted successfully!')
-        router.push('/')
-      } else {
-        alert(data.error || 'Failed to submit application')
+        const data = await response.json()
+        const hasAppliedToJob = data.applications?.some((app: any) => app.job._id === jobId)
+        setHasApplied(hasAppliedToJob)
       }
     } catch (error) {
-      console.error('Error applying to job:', error)
-      alert('An error occurred while submitting your application')
-    } finally {
-      setApplying(false)
+      console.error('Error checking application status:', error)
     }
+  }
+
+  const handleApplyClick = () => {
+    if (!user) {
+      router.push('/auth/login')
+      return
+    }
+
+    if (user.role !== 'job_seeker') {
+      alert('Only job seekers can apply to jobs.')
+      return
+    }
+
+    setShowApplicationModal(true)
+  }
+
+  const handleApplicationSuccess = () => {
+    setHasApplied(true)
+    setShowApplicationModal(false)
   }
 
   if (loading) {
@@ -206,17 +217,61 @@ export default function JobDetailPage() {
               <div className="text-sm text-gray-500">
                 Posted by {job.employerId.firstName} {job.employerId.lastName}
               </div>
-              <button
-                onClick={handleApply}
-                disabled={applying}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {applying ? 'Applying...' : 'Apply Now'}
-              </button>
+              
+              {user?.role === 'job_seeker' ? (
+                hasApplied ? (
+                  <div className="flex items-center space-x-2">
+                    <span className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
+                      ✓ Applied
+                    </span>
+                    <Link
+                      href="/applications"
+                      className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                    >
+                      View Application
+                    </Link>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleApplyClick}
+                    className="btn-primary"
+                  >
+                    Apply Now
+                  </button>
+                )
+              ) : user?.role === 'employer' ? (
+                <div className="text-sm text-gray-500">
+                  <Link
+                    href={`/jobs/${job._id}/applicants`}
+                    className="text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    View Applicants
+                  </Link>
+                </div>
+              ) : (
+                <Link
+                  href="/auth/login"
+                  className="btn-primary"
+                >
+                  Login to Apply
+                </Link>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Job Application Modal */}
+      {job && (
+        <JobApplicationModal
+          isOpen={showApplicationModal}
+          onClose={() => setShowApplicationModal(false)}
+          jobId={job._id}
+          jobTitle={job.title}
+          company={job.company}
+          onSuccess={handleApplicationSuccess}
+        />
+      )}
     </div>
   )
 }
