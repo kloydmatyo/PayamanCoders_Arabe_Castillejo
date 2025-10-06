@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 require('dotenv').config({ path: '.env.local' });
 
 const userSchema = new mongoose.Schema({
@@ -14,9 +15,11 @@ async function createAdmin() {
   await mongoose.connect(process.env.MONGODB_URI);
 
   const email = 'admin@admin.com';
-  const password = 'admin123'; // Hash in production!
+  const plainPassword = 'admin123';
+  const hashedPassword = await bcrypt.hash(plainPassword, 12);
+
   const update = {
-    password, // In production, hash this!
+    password: hashedPassword,
     role: 'admin',
     isAdmin: true,
     emailVerified: true,

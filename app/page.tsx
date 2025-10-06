@@ -20,18 +20,25 @@ export default function HomePage() {
   }
 
   // Show role-specific homepage for authenticated users
-  if (user) {
-    switch (user.role) {
-      case 'employer':
-        return <EmployerHomepage />
-      case 'mentor':
-        return <MentorHomepage />
-      case 'job_seeker':
-        return <JobSeekerHomepage />
-      default:
-        return <JobSeekerHomepage />
-    }
+if (user) {
+  switch (user.role) {
+    case 'employer':
+      return <EmployerHomepage />
+    case 'mentor':
+      return <MentorHomepage />
+    case 'job_seeker':
+      return <JobSeekerHomepage />
+    case 'admin':
+      // Redirect to /admin or render AdminHomepage if you have one
+      if (typeof window !== 'undefined') {
+        window.location.href = '/admin'
+        return null
+      }
+      return null
+    default:
+      return <JobSeekerHomepage />
   }
+}
 
   // Default homepage for unauthenticated users (general landing page)
   return (
