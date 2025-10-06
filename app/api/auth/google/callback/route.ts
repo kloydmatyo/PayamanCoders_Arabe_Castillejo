@@ -55,7 +55,8 @@ export async function GET(request: NextRequest) {
       // Update existing user with Google info if needed
       if (!user.googleId) {
         user.googleId = googleUser.id
-        user.authProvider = 'google'
+        // If user already has a password, make it hybrid, otherwise google
+        user.authProvider = user.password ? 'hybrid' : 'google'
         user.emailVerified = true // Google emails are pre-verified
         if (googleUser.picture && !user.profile?.profilePicture) {
           user.profile = user.profile || {}

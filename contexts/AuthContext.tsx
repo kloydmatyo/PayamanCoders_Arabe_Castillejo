@@ -8,6 +8,9 @@ export interface User {
   lastName: string
   role: string
   email?: string
+  authProvider?: 'local' | 'google' | 'hybrid'
+  hasPassword?: boolean
+  googleId?: string
 }
 
 export interface AuthContextValue {

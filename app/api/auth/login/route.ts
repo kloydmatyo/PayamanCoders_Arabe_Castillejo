@@ -50,11 +50,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user uses Google OAuth (no password)
-    if (user.authProvider === 'google') {
-      console.log('❌ User should use Google OAuth')
+    // Check if user uses Google OAuth only (no password set)
+    if (user.authProvider === 'google' && !user.password) {
+      console.log('❌ User should use Google OAuth (no password set)')
       return NextResponse.json(
-        { error: 'Please sign in with Google' },
+        { 
+          error: 'This account was created with Google. Please sign in with Google or set a password in your profile.',
+          requiresGoogleAuth: true
+        },
+        { status: 400 }
+      )
+    }
+
+    // Check if user has no password (shouldn't happen, but safety check)
+    if (!user.password) {
+      console.log('❌ User has no password')
+      return NextResponse.json(
+        { 
+          error: 'No password set for this account. Please sign in with Google or set a password.',
+          requiresGoogleAuth: true
+        },
         { status: 400 }
       )
     }

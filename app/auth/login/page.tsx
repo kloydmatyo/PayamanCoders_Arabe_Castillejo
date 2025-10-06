@@ -122,6 +122,20 @@ export default function LoginPage() {
                   </Link>
                 </div>
               )}
+              {error && error.includes('set a password') && (
+                <div className="mt-2">
+                  <p className="text-sm text-red-700">
+                    You can also{' '}
+                    <Link
+                      href="/auth/set-password"
+                      className="font-medium underline hover:text-red-800"
+                    >
+                      set a password
+                    </Link>
+                    {' '}to login with email and password.
+                  </p>
+                </div>
+              )}
             </div>
           )}
           

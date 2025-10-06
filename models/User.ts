@@ -10,7 +10,8 @@ export interface IUser extends mongoose.Document {
   emailVerificationToken?: string
   emailVerificationExpires?: Date
   googleId?: string
-  authProvider: 'local' | 'google'
+  authProvider: 'local' | 'google' | 'hybrid'
+  hasPassword: boolean
   profile: {
     bio?: string
     skills: string[]
@@ -39,6 +40,12 @@ const UserSchema = new mongoose.Schema({
     },
     minlength: 6,
   },
+  hasPassword: {
+    type: Boolean,
+    default: function(this: IUser): boolean {
+      return !!this.password
+    },
+  },
   emailVerified: {
     type: Boolean,
     default: false,
@@ -55,7 +62,7 @@ const UserSchema = new mongoose.Schema({
   },
   authProvider: {
     type: String,
-    enum: ['local', 'google'],
+    enum: ['local', 'google', 'hybrid'],
     default: 'local',
   },
   firstName: {
