@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Upload, File, Trash2, Download, AlertCircle, CheckCircle } from 'lucide-react';
+import { Upload, File, Trash2, Download, AlertCircle, CheckCircle, Eye } from 'lucide-react';
+import ResumePreviewModal from './ResumePreviewModal';
 
 interface ResumeData {
   filename: string;
@@ -28,6 +29,7 @@ export default function ResumeUpload({
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const formatFileSize = (bytes: number): string => {
@@ -193,6 +195,13 @@ export default function ResumeUpload({
               </div>
             </div>
             <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setShowPreview(true)}
+                className="inline-flex items-center px-3 py-2 border border-primary-300 shadow-sm text-sm leading-4 font-medium rounded-md text-primary-700 bg-white hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Preview
+              </button>
               <a
                 href={currentResume.url}
                 target="_blank"
@@ -212,6 +221,27 @@ export default function ResumeUpload({
               </button>
             </div>
           </div>
+          
+          {/* PDF Fix Notice */}
+          {currentResume.url && currentResume.url.includes('/image/upload/') && (
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <AlertCircle className="h-5 w-5 text-yellow-400" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-yellow-800">
+                    Resume Update Recommended
+                  </h3>
+                  <div className="mt-2 text-sm text-yellow-700">
+                    <p>
+                      Your resume may not display correctly for employers. Please re-upload your resume to ensure it can be viewed properly.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         /* Upload Area */
@@ -266,6 +296,17 @@ export default function ResumeUpload({
             disabled={uploading}
           />
         </div>
+      )}
+
+      {/* Resume Preview Modal */}
+      {currentResume && (
+        <ResumePreviewModal
+          isOpen={showPreview}
+          onClose={() => setShowPreview(false)}
+          resumeUrl={currentResume.url}
+          filename={currentResume.filename}
+          applicantName="Your Resume"
+        />
       )}
     </div>
   );

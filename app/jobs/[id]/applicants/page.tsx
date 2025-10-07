@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, User, Mail, MapPin, Briefcase, FileText, CheckCircle, XCircle, Clock, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import ResumePreviewModal from '@/components/ResumePreviewModal'
 
 interface Applicant {
   applicationId: string
@@ -47,6 +48,11 @@ export default function JobApplicantsPage() {
   const [error, setError] = useState('')
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null)
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
+  const [previewResume, setPreviewResume] = useState<{
+    url: string;
+    filename: string;
+    applicantName: string;
+  } | null>(null)
 
   // Redirect if not employer
   useEffect(() => {
@@ -281,14 +287,27 @@ export default function JobApplicantsPage() {
                   <h4 className="text-sm font-medium text-gray-700 mb-2">Resume</h4>
                   <div className="flex items-center space-x-2">
                     <FileText className="w-4 h-4 text-gray-400" />
-                    <a
-                      href={applicant.application.resume.cloudinaryUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                    <button
+                      onClick={() => setPreviewResume({
+                        url: applicant.application.resume!.cloudinaryUrl,
+                        filename: applicant.application.resume!.filename,
+                        applicantName: `${applicant.applicant.firstName} ${applicant.applicant.lastName}`
+                      })}
+                      className="text-primary-600 hover:text-primary-700 text-sm font-medium underline"
                     >
                       {applicant.application.resume.filename}
-                    </a>
+                    </button>
+                    <button
+                      onClick={() => setPreviewResume({
+                        url: applicant.application.resume!.cloudinaryUrl,
+                        filename: applicant.application.resume!.filename,
+                        applicantName: `${applicant.applicant.firstName} ${applicant.applicant.lastName}`
+                      })}
+                      className="inline-flex items-center px-2 py-1 text-xs font-medium text-primary-600 hover:text-primary-700 border border-primary-200 rounded hover:bg-primary-50"
+                    >
+                      <Eye className="w-3 h-3 mr-1" />
+                      Preview
+                    </button>
                     <span className="text-gray-500 text-xs">
                       (Uploaded {applicant.application.resume.uploadedAt ? new Date(applicant.application.resume.uploadedAt).toLocaleDateString() : 'Recently'})
                     </span>
@@ -477,6 +496,16 @@ export default function JobApplicantsPage() {
             </div>
           </div>
         </div>
+      )}
+      {/* Resume Preview Modal */}
+      {previewResume && (
+        <ResumePreviewModal
+          isOpen={!!previewResume}
+          onClose={() => setPreviewResume(null)}
+          resumeUrl={previewResume.url}
+          filename={previewResume.filename}
+          applicantName={previewResume.applicantName}
+        />
       )}
     </div>
   )

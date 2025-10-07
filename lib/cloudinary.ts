@@ -1,4 +1,4 @@
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary } from "cloudinary";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -18,7 +18,7 @@ export interface UploadResult {
 
 export interface UploadOptions {
   folder?: string;
-  resource_type?: 'auto' | 'image' | 'video' | 'raw';
+  resource_type?: "auto" | "image" | "video" | "raw";
   allowed_formats?: string[];
   max_bytes?: number;
   public_id?: string;
@@ -32,46 +32,57 @@ export async function uploadToCloudinary(
   options: UploadOptions = {}
 ): Promise<UploadResult> {
   const {
-    folder = 'workqit/resumes',
-    resource_type = 'auto',
-    allowed_formats = ['pdf', 'docx'],
+    folder = "workqit/resumes",
+    resource_type = "raw", // Use 'raw' for PDFs and documents
+    allowed_formats = ["pdf", "docx"],
     max_bytes = 10 * 1024 * 1024, // 10MB default
-    public_id
+    public_id,
   } = options;
 
   return new Promise((resolve, reject) => {
     const uploadOptions: any = {
       folder,
       resource_type,
-      allowed_formats,
       max_bytes,
       use_filename: true,
       unique_filename: true,
+      access_mode: "public", // Make files publicly accessible
     };
+
+    // Only add allowed_formats for non-raw resource types
+    if (resource_type !== "raw") {
+      uploadOptions.allowed_formats = allowed_formats;
+    }
 
     if (public_id) {
       uploadOptions.public_id = public_id;
     }
 
-    cloudinary.uploader.upload_stream(
-      uploadOptions,
-      (error, result) => {
+    cloudinary.uploader
+      .upload_stream(uploadOptions, (error, result) => {
         if (error) {
+          console.error("Cloudinary upload error:", error);
           reject(error);
         } else if (result) {
+          console.log("Cloudinary upload successful:", {
+            public_id: result.public_id,
+            resource_type: result.resource_type,
+            format: result.format,
+            bytes: result.bytes,
+          });
           resolve({
             public_id: result.public_id,
             secure_url: result.secure_url,
-            original_filename: result.original_filename || 'unknown',
+            original_filename: result.original_filename || "unknown",
             format: result.format,
             bytes: result.bytes,
             created_at: result.created_at,
           });
         } else {
-          reject(new Error('Upload failed - no result returned'));
+          reject(new Error("Upload failed - no result returned"));
         }
-      }
-    ).end(fileBuffer);
+      })
+      .end(fileBuffer);
   });
 }
 
@@ -80,9 +91,9 @@ export async function uploadToCloudinary(
  */
 export async function deleteFromCloudinary(publicId: string): Promise<void> {
   try {
-    await cloudinary.uploader.destroy(publicId, { resource_type: 'auto' });
+    await cloudinary.uploader.destroy(publicId, { resource_type: "raw" });
   } catch (error) {
-    console.error('Error deleting from Cloudinary:', error);
+    console.error("Error deleting from Cloudinary:", error);
     throw error;
   }
 }
@@ -92,7 +103,7 @@ export async function deleteFromCloudinary(publicId: string): Promise<void> {
  */
 export function getCloudinaryUrl(publicId: string, options: any = {}): string {
   return cloudinary.url(publicId, {
-    resource_type: 'auto',
+    resource_type: "raw",
     secure: true,
     ...options,
   });
@@ -102,20 +113,23 @@ export function getCloudinaryUrl(publicId: string, options: any = {}): string {
  * Validate file type and size
  */
 export function validateFile(file: File): { valid: boolean; error?: string } {
-  const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+  const allowedTypes = [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ];
   const maxSize = 10 * 1024 * 1024; // 10MB
 
   if (!allowedTypes.includes(file.type)) {
     return {
       valid: false,
-      error: 'Invalid file type. Only PDF and DOCX files are allowed.',
+      error: "Invalid file type. Only PDF and DOCX files are allowed.",
     };
   }
 
   if (file.size > maxSize) {
     return {
       valid: false,
-      error: 'File size too large. Maximum size is 10MB.',
+      error: "File size too large. Maximum size is 10MB.",
     };
   }
 

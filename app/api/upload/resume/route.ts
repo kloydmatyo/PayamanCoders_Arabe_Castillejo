@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     const uploadResult = await uploadToCloudinary(buffer, {
       folder: 'workqit/resumes',
       public_id: `resume_${user._id}_${Date.now()}`,
-      allowed_formats: ['pdf', 'docx'],
+      resource_type: 'raw', // Use 'raw' for PDFs and documents
       max_bytes: maxSize,
     });
 

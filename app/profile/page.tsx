@@ -10,7 +10,7 @@ interface ResumeData {
   filename: string
   url: string
   size: number
-  type: string
+  type?: string
   uploadedAt: string
 }
 
