@@ -11,6 +11,11 @@ export async function GET(request: NextRequest) {
   try {
     await dbConnect()
     
+    // Get the base URL from environment or request headers
+    const baseUrl = process.env.NEXTAUTH_URL || 
+                    process.env.NEXT_PUBLIC_APP_URL || 
+                    `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('x-forwarded-host') || request.headers.get('host')}`;
+    
     const { searchParams } = new URL(request.url)
     const code = searchParams.get('code')
     const state = searchParams.get('state')
@@ -19,13 +24,13 @@ export async function GET(request: NextRequest) {
     // Handle OAuth errors
     if (error) {
       return NextResponse.redirect(
-        new URL(`/auth/login?error=Google authentication was cancelled or failed`, request.url)
+        new URL(`/auth/login?error=Google authentication was cancelled or failed`, baseUrl)
       )
     }
 
     if (!code) {
       return NextResponse.redirect(
-        new URL('/auth/login?error=No authorization code received', request.url)
+        new URL('/auth/login?error=No authorization code received', baseUrl)
       )
     }
 
@@ -92,7 +97,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Create response and set cookie
-    const response = NextResponse.redirect(new URL('/', request.url))
+    const response = NextResponse.redirect(new URL('/', baseUrl))
     
     response.cookies.set('token', token, {
       httpOnly: true,
@@ -106,8 +111,14 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Google OAuth callback error:', error)
+    
+    // Get base URL for error redirect
+    const baseUrl = process.env.NEXTAUTH_URL || 
+                    process.env.NEXT_PUBLIC_APP_URL || 
+                    `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('x-forwarded-host') || request.headers.get('host')}`;
+    
     return NextResponse.redirect(
-      new URL('/auth/login?error=Authentication failed. Please try again.', request.url)
+      new URL('/auth/login?error=Authentication failed. Please try again.', baseUrl)
     )
   }
 }
