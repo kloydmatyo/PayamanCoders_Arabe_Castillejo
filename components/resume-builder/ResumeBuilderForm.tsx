@@ -3,12 +3,51 @@
 import { useState, useEffect } from 'react';
 import { User, Briefcase, GraduationCap, Award, Code, Plus, Trash2, Sparkles, Save, Eye } from 'lucide-react';
 
+interface PersonalInfo {
+  fullName: string;
+  email: string;
+  phone: string;
+  location: string;
+  linkedin: string;
+  portfolio: string;
+  profilePicture: string;
+}
+
+interface Experience {
+  title: string;
+  company: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
+  description: string;
+  achievements: string[];
+}
+
+interface Education {
+  degree: string;
+  institution: string;
+  location: string;
+  graduationDate: string;
+  gpa: string;
+}
+
+interface ResumeData {
+  personalInfo: PersonalInfo;
+  summary: string;
+  experience: Experience[];
+  education: Education[];
+  skills: string[];
+  certifications: any[];
+  projects: any[];
+}
+
 interface ResumeBuilderFormProps {
   jobDescription: string;
   jobAnalysis: any;
-  initialData?: any;
-  onSave: (data: any) => void;
-  onPreview: (data: any) => void;
+  initialData?: ResumeData;
+  onSave: (data: ResumeData) => void;
+  onPreview: (data: ResumeData) => void;
 }
 
 export default function ResumeBuilderForm({ 
@@ -18,7 +57,7 @@ export default function ResumeBuilderForm({
   onSave, 
   onPreview 
 }: ResumeBuilderFormProps) {
-  const [resumeData, setResumeData] = useState(initialData || {
+  const [resumeData, setResumeData] = useState<ResumeData>(initialData || {
     personalInfo: {
       fullName: '',
       email: '',
