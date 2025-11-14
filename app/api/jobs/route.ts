@@ -118,25 +118,29 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Only verified or pending employers can post jobs
+    // Only verified employers can post jobs
     const verificationStatus = employer.verification?.status || 'unverified'
-    if (verificationStatus === 'unverified') {
+    
+    if (verificationStatus !== 'verified') {
+      let errorMessage = 'Verification required'
+      let detailMessage = 'Please complete employer verification before posting jobs'
+      
+      if (verificationStatus === 'pending') {
+        detailMessage = 'Your verification is pending review. You can post jobs once your account is verified.'
+      } else if (verificationStatus === 'rejected') {
+        errorMessage = 'Verification rejected'
+        detailMessage = 'Your verification was rejected. Please resubmit with correct information or contact support.'
+      } else if (verificationStatus === 'suspended') {
+        errorMessage = 'Account suspended'
+        detailMessage = 'Your account has been suspended. Please contact support for assistance.'
+      }
+      
       return NextResponse.json(
         { 
-          error: 'Verification required',
-          message: 'Please complete employer verification before posting jobs',
+          error: errorMessage,
+          message: detailMessage,
+          verificationStatus,
           verificationRequired: true
-        },
-        { status: 403 }
-      )
-    }
-
-    if (verificationStatus === 'rejected' || verificationStatus === 'suspended') {
-      return NextResponse.json(
-        { 
-          error: 'Account suspended',
-          message: 'Your account verification has been rejected or suspended. Please contact support.',
-          verificationStatus
         },
         { status: 403 }
       )
@@ -144,22 +148,16 @@ export async function POST(request: NextRequest) {
 
     const jobData = await request.json()
     
-    // Set job status based on verification
-    const jobStatus = verificationStatus === 'verified' ? 'active' : 'draft'
-    
     const job = await Job.create({
       ...jobData,
       employerId: user.userId,
-      status: jobStatus
+      status: 'active'
     })
 
     return NextResponse.json(
       { 
-        message: verificationStatus === 'verified' 
-          ? 'Job created successfully' 
-          : 'Job created as draft - will be published after verification',
-        job,
-        requiresVerification: verificationStatus === 'pending'
+        message: 'Job created successfully',
+        job
       },
       { status: 201 }
     )
