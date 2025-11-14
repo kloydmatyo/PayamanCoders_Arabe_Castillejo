@@ -58,10 +58,16 @@ export default function Navbar() {
             Jobs
           </Link>
           {user?.role === 'job_seeker' && (
-            <Link href="/applications" className={`nav-link group ${isActive('/applications') ? 'nav-link-active' : ''}`}>
-              <FileText className="nav-icon text-secondary-500 group-hover:text-primary-500" />
-              My Applications
-            </Link>
+            <>
+              <Link href="/resume-builder" className={`nav-link group ${isActive('/resume-builder') ? 'nav-link-active' : ''}`}>
+                <FileText className="nav-icon text-secondary-500 group-hover:text-primary-500" />
+                Resume Builder
+              </Link>
+              <Link href="/applications" className={`nav-link group ${isActive('/applications') ? 'nav-link-active' : ''}`}>
+                <FileText className="nav-icon text-secondary-500 group-hover:text-primary-500" />
+                My Applications
+              </Link>
+            </>
           )}
           <Link href="/career-map" className={`nav-link group ${isActive('/career-map') ? 'nav-link-active' : ''}`}>
             <BookOpen className="nav-icon text-secondary-500 group-hover:text-primary-500" />
