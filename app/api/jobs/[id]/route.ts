@@ -11,14 +11,26 @@ export async function GET(
     
     const jobId = params.id
     
-    const job = await Job.findById(jobId)
-      .populate('employerId', 'firstName lastName')
+    // Fetch job without population first
+    let job = await Job.findById(jobId).lean()
     
     if (!job) {
       return NextResponse.json(
         { error: 'Job not found' },
         { status: 404 }
       )
+    }
+
+    // Try to populate employerId, but handle failures gracefully
+    try {
+      const populated = await Job.populate(job, {
+        path: 'employerId',
+        select: 'firstName lastName'
+      })
+      job = populated
+    } catch (populateError) {
+      console.warn('Could not populate employerId for job:', populateError)
+      // Continue with unpopulated data
     }
 
     return NextResponse.json({
@@ -28,7 +40,7 @@ export async function GET(
   } catch (error) {
     console.error('Job fetch error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
