@@ -34,6 +34,11 @@ export default function RegisterPage() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    const timeout = setTimeout(() => setIsEntering(false), 900);
+    return () => clearTimeout(timeout);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -60,11 +65,6 @@ export default function RegisterPage() {
         }),
       });
 
-  useEffect(() => {
-    const timeout = setTimeout(() => setIsEntering(false), 900);
-    return () => clearTimeout(timeout);
-  }, []);
-
       const data = await response.json();
 
       if (response.ok) {
@@ -75,10 +75,28 @@ export default function RegisterPage() {
           router.push("/auth/login?message=Registration successful");
         }
       } else {
-        setError(data.error || "Registration failed");
+        // Show detailed error information
+        console.error('Registration error:', data);
+        let errorMessage = data.error || "Registration failed";
+        
+        // Add validation details if available
+        if (data.details) {
+          errorMessage += `: ${data.details}`;
+        }
+        
+        // Add validation errors if available
+        if (data.validationErrors) {
+          const validationMessages = Object.values(data.validationErrors)
+            .map((err: any) => err.message)
+            .join(', ');
+          errorMessage += ` - ${validationMessages}`;
+        }
+        
+        setError(errorMessage);
         setSuccess("");
       }
     } catch (error) {
+      console.error('Registration exception:', error);
       setError("An error occurred. Please try again.");
     } finally {
       setLoading(false);

@@ -112,18 +112,39 @@ export async function POST(request: NextRequest) {
     const verificationExpires = getVerificationTokenExpiry()
 
     // Create user
-    const user = await User.create({
+    const userRole = role || 'job_seeker'
+    const userData: any = {
       email: email.toLowerCase(),
       password: hashedPassword,
       firstName,
       lastName,
-      role: role || 'job_seeker',
+      role: userRole,
       authProvider: 'local',
-      emailVerified: false,
+      emailVerified: process.env.NODE_ENV === 'development' ? true : false, // Auto-verify in development
       emailVerificationToken: verificationToken,
       emailVerificationExpires: verificationExpires,
       passwordChangedAt: new Date(), // Track when password was set
-    })
+    }
+
+    // Set verification status for employers
+    if (userRole === 'employer') {
+      userData.verification = {
+        status: 'unverified',
+        trustScore: 0,
+        verificationChecks: {
+          emailDomainVerified: false,
+          businessRegistryChecked: false,
+          linkedInVerified: false,
+          websiteVerified: false,
+          manualReviewRequired: false
+        },
+        reports: 0
+      }
+    }
+
+    console.log('Creating user with data:', { ...userData, password: '[REDACTED]' })
+    const user = await User.create(userData)
+    console.log('User created successfully:', user._id)
 
     // Send verification email
     await sendVerificationEmail(email, verificationToken, firstName)
@@ -141,8 +162,32 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     console.error('Registration error:', error)
+    
+    // Check if it's a MongoDB validation error
+    if (error instanceof Error && error.name === 'ValidationError') {
+      return NextResponse.json(
+        { 
+          error: 'Validation error',
+          details: error.message,
+          validationErrors: (error as any).errors
+        },
+        { status: 400 }
+      )
+    }
+    
+    // Check if it's a MongoDB duplicate key error
+    if (error instanceof Error && (error as any).code === 11000) {
+      return NextResponse.json(
+        { error: 'An account with this email already exists' },
+        { status: 400 }
+      )
+    }
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }

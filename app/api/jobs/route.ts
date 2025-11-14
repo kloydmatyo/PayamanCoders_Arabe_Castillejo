@@ -107,15 +107,58 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check employer verification status
+    const User = (await import('@/models/User')).default
+    const employer = await User.findById(user.userId).select('verification')
+    
+    if (!employer) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      )
+    }
+
+    // Only verified employers can post jobs
+    const verificationStatus = employer.verification?.status || 'unverified'
+    
+    if (verificationStatus !== 'verified') {
+      let errorMessage = 'Verification required'
+      let detailMessage = 'Please complete employer verification before posting jobs'
+      
+      if (verificationStatus === 'pending') {
+        detailMessage = 'Your verification is pending review. You can post jobs once your account is verified.'
+      } else if (verificationStatus === 'rejected') {
+        errorMessage = 'Verification rejected'
+        detailMessage = 'Your verification was rejected. Please resubmit with correct information or contact support.'
+      } else if (verificationStatus === 'suspended') {
+        errorMessage = 'Account suspended'
+        detailMessage = 'Your account has been suspended. Please contact support for assistance.'
+      }
+      
+      return NextResponse.json(
+        { 
+          error: errorMessage,
+          message: detailMessage,
+          verificationStatus,
+          verificationRequired: true
+        },
+        { status: 403 }
+      )
+    }
+
     const jobData = await request.json()
     
     const job = await Job.create({
       ...jobData,
       employerId: user.userId,
+      status: 'active'
     })
 
     return NextResponse.json(
-      { message: 'Job created successfully', job },
+      { 
+        message: 'Job created successfully',
+        job
+      },
       { status: 201 }
     )
   } catch (error) {

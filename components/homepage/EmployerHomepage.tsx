@@ -208,9 +208,23 @@ export default function EmployerHomepage() {
                       : 'Complete your company profile to enable fuller features.'}
                   </p>
                 </div>
-                <div className="rounded-full border border-primary-500/40 bg-primary-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-600">
-                  Verified
-                </div>
+                {user?.verification?.status === 'verified' ? (
+                  <div className="rounded-full border border-green-500/40 bg-green-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-green-600">
+                    Verified
+                  </div>
+                ) : user?.verification?.status === 'pending' ? (
+                  <div className="rounded-full border border-yellow-500/40 bg-yellow-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-yellow-600">
+                    Pending
+                  </div>
+                ) : user?.verification?.status === 'rejected' || user?.verification?.status === 'suspended' ? (
+                  <div className="rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-red-600">
+                    {user?.verification?.status === 'suspended' ? 'Suspended' : 'Rejected'}
+                  </div>
+                ) : (
+                  <div className="rounded-full border border-gray-500/40 bg-gray-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-600">
+                    Unverified
+                  </div>
+                )}
               </div>
 
               <div className="mt-6">

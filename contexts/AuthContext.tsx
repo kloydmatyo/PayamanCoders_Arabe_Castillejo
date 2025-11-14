@@ -11,6 +11,11 @@ export interface User {
   authProvider?: 'local' | 'google' | 'hybrid'
   hasPassword?: boolean
   googleId?: string
+  verification?: {
+    status: 'unverified' | 'pending' | 'verified' | 'rejected' | 'suspended'
+    trustScore?: number
+    verifiedAt?: string
+  }
 }
 
 export interface AuthContextValue {
