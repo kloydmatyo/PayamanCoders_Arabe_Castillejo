@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { MapPin, Clock, DollarSign, Building, Users, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import JobApplicationModal from '@/components/JobApplicationModal'
+import JobMatchScore from '@/components/ai/JobMatchScore'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface Job {
@@ -204,6 +205,13 @@ export default function JobDetailPage() {
             </div>
 
             <div className="space-y-8">
+              {/* AI Match Score - Only for job seekers */}
+              {user?.role === 'job_seeker' && (
+                <div style={{ '--float-delay': '0.20s' } as CSSProperties}>
+                  <JobMatchScore jobId={job._id} />
+                </div>
+              )}
+
               <section
                 className="card space-y-4 border-white/25 bg-white/70 p-10"
                 style={{ '--float-delay': '0.24s' } as CSSProperties}

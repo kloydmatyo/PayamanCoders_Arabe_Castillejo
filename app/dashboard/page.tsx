@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import AIRecommendations from "@/components/ai/AIRecommendations";
 
 interface Stats {
   applications: number;
@@ -248,6 +249,11 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* AI Recommendations Section */}
+      <div className="mb-8">
+        <AIRecommendations />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
