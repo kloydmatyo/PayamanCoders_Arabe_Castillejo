@@ -36,6 +36,44 @@ export interface IUser extends mongoose.Document {
     culture?: string
     updatedAt?: Date
   }
+  verification?: {
+    status: 'unverified' | 'pending' | 'verified' | 'rejected' | 'suspended'
+    verifiedAt?: Date
+    rejectedAt?: Date
+    rejectionReason?: string
+    trustScore: number
+    businessRegistrationNumber?: string
+    linkedInProfile?: string
+    officialEmail?: string
+    emailDomain?: string
+    documents?: Array<{
+      type: 'business_registration' | 'tax_id' | 'incorporation' | 'other'
+      url: string
+      uploadedAt: Date
+      verified: boolean
+    }>
+    verificationChecks?: {
+      emailDomainVerified: boolean
+      businessRegistryChecked: boolean
+      linkedInVerified: boolean
+      websiteVerified: boolean
+      manualReviewRequired: boolean
+      lastCheckedAt?: Date
+    }
+    flags?: Array<{
+      type: 'suspicious_activity' | 'user_report' | 'pattern_mismatch' | 'domain_mismatch' | 'other'
+      description: string
+      reportedBy?: mongoose.Types.ObjectId
+      createdAt: Date
+      resolved: boolean
+      resolvedAt?: Date
+      resolvedBy?: mongoose.Types.ObjectId
+    }>
+    reports?: number
+    lastReviewedAt?: Date
+    reviewedBy?: mongoose.Types.ObjectId
+    notes?: string
+  }
   resume?: {
     filename: string
     originalName: string
@@ -151,6 +189,101 @@ const UserSchema = new mongoose.Schema({
       type: Date,
       default: Date.now
     }
+  },
+  
+  verification: {
+    status: {
+      type: String,
+      enum: ['unverified', 'pending', 'verified', 'rejected', 'suspended'],
+      default: function(this: IUser) {
+        return this.role === 'employer' ? 'unverified' : 'verified'
+      }
+    },
+    verifiedAt: Date,
+    rejectedAt: Date,
+    rejectionReason: String,
+    trustScore: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100
+    },
+    businessRegistrationNumber: String,
+    linkedInProfile: String,
+    officialEmail: String,
+    emailDomain: String,
+    documents: [{
+      type: {
+        type: String,
+        enum: ['business_registration', 'tax_id', 'incorporation', 'other']
+      },
+      url: String,
+      uploadedAt: {
+        type: Date,
+        default: Date.now
+      },
+      verified: {
+        type: Boolean,
+        default: false
+      }
+    }],
+    verificationChecks: {
+      emailDomainVerified: {
+        type: Boolean,
+        default: false
+      },
+      businessRegistryChecked: {
+        type: Boolean,
+        default: false
+      },
+      linkedInVerified: {
+        type: Boolean,
+        default: false
+      },
+      websiteVerified: {
+        type: Boolean,
+        default: false
+      },
+      manualReviewRequired: {
+        type: Boolean,
+        default: false
+      },
+      lastCheckedAt: Date
+    },
+    flags: [{
+      type: {
+        type: String,
+        enum: ['suspicious_activity', 'user_report', 'pattern_mismatch', 'domain_mismatch', 'other']
+      },
+      description: String,
+      reportedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+      },
+      resolved: {
+        type: Boolean,
+        default: false
+      },
+      resolvedAt: Date,
+      resolvedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    }],
+    reports: {
+      type: Number,
+      default: 0
+    },
+    lastReviewedAt: Date,
+    reviewedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    notes: String
   },
   
   // Password security tracking
