@@ -157,6 +157,7 @@ const UserSchema = new mongoose.Schema({
     availability: {
       type: String,
       enum: ['full_time', 'part_time', 'contract', 'internship'],
+      required: false,
     },
     remote: {
       type: Boolean,
