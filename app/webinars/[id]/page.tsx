@@ -191,7 +191,13 @@ export default function WebinarDetailsPage() {
     webinar.maxAttendees && webinar.attendees.length >= webinar.maxAttendees;
   const isPast = webinar.status === 'completed';
   const isCancelled = webinar.status === 'cancelled';
-  const isLive = webinar.status === 'live';
+  
+  // Check if webinar is live based on time
+  const now = new Date();
+  const scheduledDate = new Date(webinar.scheduledDate);
+  const endTime = new Date(scheduledDate.getTime() + webinar.duration * 60000);
+  const isLive = webinar.status === 'live' || 
+    (webinar.status === 'scheduled' && now >= scheduledDate && now <= endTime);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
@@ -296,24 +302,39 @@ export default function WebinarDetailsPage() {
             </div>
           )}
 
+          {/* Google Meet Link (for registered users) */}
+          {isRegistered && webinar.meetLink && !isCancelled && (
+            <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <Video className="h-5 w-5 text-blue-600" />
+                <h3 className="font-semibold text-blue-900">Meeting Link</h3>
+              </div>
+              <p className="mb-3 text-sm text-blue-700">
+                {isLive 
+                  ? 'The webinar is live now! Click below to join.'
+                  : 'Save this link to join the webinar when it starts.'}
+              </p>
+              <a
+                href={webinar.meetLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`btn-primary flex items-center justify-center gap-2 px-6 py-3 ${
+                  isLive ? 'animate-pulse' : ''
+                }`}
+              >
+                <Video className="h-5 w-5" />
+                {isLive ? 'Join Meeting Now' : 'Open Google Meet Link'}
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-3">
             {!isCancelled && !isPast && (
               <>
                 {isRegistered ? (
                   <>
-                    {(isLive && webinar.meetLink) && (
-                      <a
-                        href={webinar.meetLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-primary flex items-center gap-2 px-6 py-3"
-                      >
-                        <Video className="h-5 w-5" />
-                        Join Meeting
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    )}
                     <button
                       onClick={handleUnregister}
                       disabled={registering}
