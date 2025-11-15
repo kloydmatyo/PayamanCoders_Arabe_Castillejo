@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { CSSProperties } from "react";
 import {
   Briefcase,
   Users,
   TrendingUp,
   Calendar,
   ExternalLink,
+  MapPin,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
@@ -56,6 +58,12 @@ export default function DashboardPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEntering, setIsEntering] = useState(true);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setIsEntering(false), 900);
+    return () => clearTimeout(timeout);
+  }, []);
 
   useEffect(() => {
     console.log("🏠 Dashboard component mounted");
@@ -150,24 +158,21 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+      <div className="hero-gradient relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div className="auth-background-grid" aria-hidden="true" />
+        {isEntering && <div className="auth-entry-overlay" />}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-500/20 blur-3xl animate-pulse"></div>
+          <div className="absolute right-1/4 top-1/3 h-72 w-72 rounded-full bg-secondary-500/15 blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+        </div>
+        <div className="text-center relative z-10 animate-[floatUp_0.85s_ease-out]">
+          <div className="futuristic-loader mx-auto mb-6">
+            <div className="futuristic-loader-inner"></div>
+          </div>
+          <h2 className="auth-title text-2xl font-bold mb-3">
             Loading Dashboard...
           </h2>
-          <p className="text-gray-600">Please wait while we fetch your data</p>
-        </div>
-        <div className="animate-pulse mt-8">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white p-6 rounded-lg shadow-md">
-                <div className="h-16 bg-gray-200 rounded"></div>
-              </div>
-            ))}
-          </div>
+          <p className="auth-subtitle">Please wait while we fetch your data</p>
         </div>
       </div>
     );
@@ -175,186 +180,253 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
-          {error}
+      <div className="hero-gradient relative min-h-screen flex items-center justify-center">
+        <div className="auth-background-grid" aria-hidden="true" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="glass-alert glass-alert-error">
+            {error}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+    <div className="hero-gradient relative min-h-screen overflow-hidden">
+      <div className="auth-background-grid" aria-hidden="true" />
+      {isEntering && <div className="auth-entry-overlay" />}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full bg-primary-500/20 blur-3xl"></div>
+        <div className="absolute right-[-10%] top-20 h-72 w-72 rounded-full bg-secondary-500/15 blur-3xl"></div>
+      </div>
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className={`mb-8 ${isEntering ? 'auth-panel-enter' : ''}`}>
+          <h1 className="auth-title text-3xl font-bold mb-2 animate-[floatUp_0.85s_ease-out]">
             Welcome back{user ? `, ${user.firstName}` : ""}!
           </h1>
-          <p className="text-gray-600">
+          <p className="auth-subtitle">
             Here's what's happening with your job search.
           </p>
         </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center">
-            <div className="bg-blue-100 p-3 rounded-full">
-              <Briefcase className="w-6 h-6 text-blue-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Applications</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {stats.applications}
-              </p>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div 
+            className="stat-card"
+            style={{ '--float-delay': '0.1s' } as CSSProperties}
+          >
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-primary-500/35 bg-primary-500/15 text-primary-500 shadow-inner shadow-primary-700/25">
+                    <Briefcase className="h-7 w-7" />
+                  </div>
+                </div>
+                <div className="ml-5 flex-1 min-w-0">
+                  <p className="text-base font-medium uppercase tracking-wide text-secondary-600 leading-tight mb-1 break-words">Applications</p>
+                  <p className="stat-number">
+                    {stats.applications}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center">
-            <div className="bg-green-100 p-3 rounded-full">
-              <Calendar className="w-6 h-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Interviews</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {stats.interviews}
-              </p>
+          <div 
+            className="stat-card"
+            style={{ '--float-delay': '0.2s' } as CSSProperties}
+          >
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-primary-500/35 bg-primary-500/15 text-primary-500 shadow-inner shadow-primary-700/25">
+                    <Calendar className="h-7 w-7" />
+                  </div>
+                </div>
+                <div className="ml-5 flex-1 min-w-0">
+                  <p className="text-base font-medium uppercase tracking-wide text-secondary-600 leading-tight mb-1 break-words">Interviews</p>
+                  <p className="stat-number">
+                    {stats.interviews}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center">
-            <div className="bg-purple-100 p-3 rounded-full">
-              <TrendingUp className="w-6 h-6 text-purple-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Offers</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.offers}</p>
+          <div 
+            className="stat-card"
+            style={{ '--float-delay': '0.3s' } as CSSProperties}
+          >
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-primary-500/35 bg-primary-500/15 text-primary-500 shadow-inner shadow-primary-700/25">
+                    <TrendingUp className="h-7 w-7" />
+                  </div>
+                </div>
+                <div className="ml-5 flex-1 min-w-0">
+                  <p className="text-base font-medium uppercase tracking-wide text-secondary-600 leading-tight mb-1 break-words">Offers</p>
+                  <p className="stat-number">{stats.offers}</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center">
-            <div className="bg-orange-100 p-3 rounded-full">
-              <Users className="w-6 h-6 text-orange-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Profile Views</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {stats.profile_views}
-              </p>
+          <div 
+            className="stat-card"
+            style={{ '--float-delay': '0.4s' } as CSSProperties}
+          >
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-primary-500/35 bg-primary-500/15 text-primary-500 shadow-inner shadow-primary-700/25">
+                    <Users className="h-7 w-7" />
+                  </div>
+                </div>
+                <div className="ml-5 flex-1 min-w-0">
+                  <p className="text-base font-medium uppercase tracking-wide text-secondary-600 leading-tight mb-1 break-words">Profile Views</p>
+                  <p className="stat-number">
+                    {stats.profile_views}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
       {/* AI Recommendations Section */}
       <div className="mb-8">
         <AIRecommendations />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Applications */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Recent Applications
-            </h2>
-            <Link
-              href="/applications"
-              className="text-primary-600 hover:text-primary-700 text-sm font-medium"
-            >
-              View All
-            </Link>
-          </div>
-
-          {applications.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">No applications yet</p>
-              <Link href="/jobs" className="btn-primary">
-                Browse Jobs
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Recent Applications */}
+          <div className="card">
+            <div className="flex justify-between items-center mb-6 animate-[floatUp_0.85s_ease-out]">
+              <h2 className="feature-heading text-xl font-semibold">
+                Recent Applications
+              </h2>
+              <Link
+                href="/applications"
+                className="auth-link text-sm font-medium"
+              >
+                View All
               </Link>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {applications.slice(0, 3).map((app) => (
-                <div
-                  key={app.id}
-                  className="flex justify-between items-center p-4 bg-gray-50 rounded-lg"
-                >
-                  <div>
-                    <h3 className="font-medium text-gray-900">
-                      {app.jobTitle}
-                    </h3>
-                    <p className="text-sm text-gray-600">{app.company}</p>
-                    <p className="text-xs text-gray-500">
-                      Applied {new Date(app.appliedDate).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <span
-                    className={`px-2 py-1 rounded text-sm ${getStatusColor(
-                      app.status
-                    )}`}
-                  >
-                    {getStatusText(app.status)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
 
-        {/* Recommended Jobs */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Recommended for You
-            </h2>
-            <Link
-              href="/jobs"
-              className="text-primary-600 hover:text-primary-700 text-sm font-medium"
-            >
-              View All Jobs
-            </Link>
+            {applications.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="feature-icon mx-auto mb-4 w-16 h-16">
+                  <Briefcase className="w-8 h-8 text-primary-500" />
+                </div>
+                <p className="auth-subtitle mb-6">No applications yet</p>
+                <Link href="/jobs" className="btn-primary inline-flex items-center gap-2">
+                  Browse Jobs
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {applications.slice(0, 3).map((app, index) => (
+                  <div
+                    key={app.id}
+                    className="feature-card flex justify-between items-center p-5 group"
+                    style={{ '--float-delay': `${0.1 + index * 0.08}s` } as CSSProperties}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 mb-1 text-lg group-hover:text-primary-600 transition-colors">
+                        {app.jobTitle}
+                      </h3>
+                      <p className="text-sm text-secondary-600 mb-2">{app.company}</p>
+                      <p className="text-xs text-secondary-500">
+                        Applied {new Date(app.appliedDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex-shrink-0 ml-4">
+                      <span
+                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider border shadow-inner ${
+                          app.status === 'pending' 
+                            ? 'text-yellow-600 bg-yellow-500/20 border-yellow-500/30 shadow-yellow-700/20'
+                            : app.status === 'reviewed'
+                            ? 'text-blue-600 bg-blue-500/20 border-blue-500/30 shadow-blue-700/20'
+                            : app.status === 'accepted'
+                            ? 'text-green-600 bg-green-500/20 border-green-500/30 shadow-green-700/20'
+                            : app.status === 'rejected'
+                            ? 'text-red-600 bg-red-500/20 border-red-500/30 shadow-red-700/20'
+                            : 'text-secondary-600 bg-secondary-500/20 border-secondary-500/30 shadow-secondary-700/20'
+                        }`}
+                      >
+                        {getStatusText(app.status)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {recommendations.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">No recommendations available</p>
-              <p className="text-sm text-gray-400">
-                Complete your profile to get personalized job recommendations
-              </p>
+          {/* Recommended Jobs */}
+          <div className="card">
+            <div className="flex justify-between items-center mb-6 animate-[floatUp_0.85s_ease-out]">
+              <h2 className="feature-heading text-xl font-semibold">
+                Recommended for You
+              </h2>
+              <Link
+                href="/jobs"
+                className="auth-link text-sm font-medium"
+              >
+                View All Jobs
+              </Link>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {recommendations.slice(0, 3).map((job) => (
-                <div
-                  key={job.id}
-                  className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors"
-                >
-                  <h3 className="font-medium text-gray-900 mb-1">
-                    {job.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-2">{job.company}</p>
-                  <p className="text-sm text-gray-500 mb-2">
-                    {job.location} {job.remote && "• Remote"}
-                    {job.salary && typeof job.salary.min === 'number' && typeof job.salary.max === 'number' &&
-                      ` • $${job.salary.min}-${job.salary.max}/hour`}
-                  </p>
-                  <Link
-                    href={`/jobs/${job.id}`}
-                    className="inline-flex items-center mt-2 text-primary-600 hover:text-primary-700 text-sm font-medium"
-                  >
-                    View Details
-                    <ExternalLink className="w-3 h-3 ml-1" />
-                  </Link>
+
+            {recommendations.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="feature-icon mx-auto mb-4 w-16 h-16">
+                  <TrendingUp className="w-8 h-8 text-primary-500" />
                 </div>
-              ))}
-            </div>
-          )}
+                <p className="auth-subtitle mb-2">No recommendations available</p>
+                <p className="text-sm text-secondary-500">
+                  Complete your profile to get personalized job recommendations
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recommendations.slice(0, 3).map((job, index) => (
+                  <div
+                    key={job.id}
+                    className="feature-card p-5 group"
+                    style={{ '--float-delay': `${0.1 + index * 0.08}s` } as CSSProperties}
+                  >
+                    <h3 className="font-semibold text-gray-900 mb-1 text-lg group-hover:text-primary-600 transition-colors">
+                      {job.title}
+                    </h3>
+                    <p className="text-sm text-secondary-600 mb-3">{job.company}</p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <span className="inline-flex items-center gap-1.5 text-xs text-secondary-500">
+                        <MapPin className="w-3.5 h-3.5 text-primary-500" />
+                        {job.location}
+                      </span>
+                      {job.remote && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-green-600 font-medium bg-green-500/20 border border-green-500/30 text-xs">Remote</span>
+                      )}
+                      {job.salary && typeof job.salary.min === 'number' && typeof job.salary.max === 'number' && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-primary-600 font-medium bg-primary-500/20 border border-primary-500/30 text-xs">
+                          ${job.salary.min}-{job.salary.max}/hour
+                        </span>
+                      )}
+                    </div>
+                    <Link
+                      href={`/jobs/${job.id}`}
+                      className="inline-flex items-center gap-2 auth-link text-sm font-medium group/link"
+                    >
+                      View Details
+                      <ExternalLink className="w-3.5 h-3.5 transition-transform duration-300 group-hover/link:translate-x-1" />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

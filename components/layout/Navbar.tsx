@@ -56,12 +56,12 @@ export default function Navbar() {
             </Link>
           </>
         )}
-        <Link href="/career-map" className={`nav-link group ${isActive('/career-map') ? 'nav-link-active' : ''}`}>
-          <BookOpen className="nav-icon text-secondary-500 group-hover:text-primary-500" />
+        <Link href="/career-map" className={`nav-link group ${isActive('/career-map') ? 'nav-link-active-yellow' : ''}`}>
+          <BookOpen className={`nav-icon ${isActive('/career-map') ? 'text-yellow-500' : 'text-secondary-500 group-hover:text-primary-500'}`} />
           Career Map
         </Link>
-        <Link href="/community" className={`nav-link group ${isActive('/community') ? 'nav-link-active' : ''}`}>
-          <Users className="nav-icon text-secondary-500 group-hover:text-primary-500" />
+        <Link href="/community" className={`nav-link group ${isActive('/community') ? 'nav-link-active-green' : ''}`}>
+          <Users className={`nav-icon ${isActive('/community') ? 'text-green-500' : 'text-secondary-500 group-hover:text-primary-500'}`} />
           Community
         </Link>
       </div>
@@ -69,34 +69,60 @@ export default function Navbar() {
       <div className="relative">
         <button
           onClick={() => setShowUserMenu(!showUserMenu)}
-          className="flex items-center gap-3 rounded-full border border-white/40 bg-white/60 px-3 py-2 text-secondary-700 shadow-lg shadow-primary-900/10 backdrop-blur focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white hover:text-primary-600 transition-all duration-300"
+          className="group relative flex items-center gap-3 rounded-full border border-primary-500/40 bg-white/70 px-4 py-2.5 text-secondary-700 shadow-lg shadow-primary-700/20 backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white hover:border-primary-500/60 hover:bg-white/80 hover:text-primary-600 hover:shadow-xl hover:shadow-primary-500/30 transition-all duration-300"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-primary-600 to-primary-500 text-base font-semibold text-white shadow-inner shadow-primary-900/10">
-            {user?.firstName?.[0]}{user?.lastName?.[0]}
+          <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-500 text-base font-semibold text-white shadow-inner shadow-primary-900/20 ring-2 ring-primary-500/30 group-hover:ring-primary-500/60 group-hover:scale-110 transition-all duration-300">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent"></div>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-t from-primary-700/30 to-transparent"></div>
+            {user?.firstName?.[0] && user?.lastName?.[0] ? (
+              <span className="relative z-10">{user?.firstName?.[0]}{user?.lastName?.[0]}</span>
+            ) : (
+              <User className="relative z-10 h-6 w-6" />
+            )}
+            <div className="absolute -inset-1 rounded-full bg-primary-500/40 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <span className="hidden text-base font-semibold lg:block">{user?.firstName}</span>
+          <span className="hidden text-base font-semibold lg:block group-hover:text-primary-600 transition-colors duration-300">{user?.firstName}</span>
+          <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-primary-500/20 via-secondary-500/20 to-primary-500/20 opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300 -z-10"></div>
         </button>
 
         {showUserMenu && (
-          <div className="absolute right-0 mt-3 w-64 overflow-hidden rounded-2xl border border-white/30 bg-white/70 p-3 shadow-2xl shadow-primary-900/10 backdrop-blur-xl">
-            <div className="rounded-xl border border-white/30 bg-white/60 px-4 py-3 text-base text-secondary-600 shadow-inner shadow-primary-900/5">
-              <div className="text-lg font-semibold text-primary-600">{user?.firstName} {user?.lastName}</div>
-              <div className="text-sm text-secondary-500">{user?.email}</div>
+          <div className="absolute right-0 mt-3 w-72 overflow-hidden rounded-2xl border border-primary-500/40 bg-white/80 p-4 shadow-2xl shadow-primary-700/20 backdrop-blur-xl animate-[floatUp_0.3s_ease-out]">
+            <div className="relative rounded-xl border border-primary-500/30 bg-gradient-to-br from-primary-500/10 via-white/60 to-secondary-500/10 px-5 py-4 mb-3 shadow-inner shadow-primary-700/10 backdrop-blur">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 via-transparent to-secondary-500/5 rounded-xl"></div>
+              <div className="relative">
+                <div className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent mb-1">
+                  {user?.firstName} {user?.lastName}
+                </div>
+                <div className="text-sm font-medium text-secondary-600 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                  {user?.email}
+                </div>
+              </div>
             </div>
             <Link
               href="/profile"
-              className="mt-2 flex items-center gap-3 rounded-xl px-4 py-2.5 text-base text-secondary-600 transition-colors duration-300 hover:bg-white/70 hover:text-primary-600"
+              className="group relative flex items-center gap-4 rounded-xl px-5 py-3.5 text-base font-medium text-secondary-700 transition-all duration-300 hover:bg-gradient-to-r hover:from-primary-500/20 hover:to-secondary-500/20 hover:text-primary-600 hover:shadow-lg hover:shadow-primary-500/20 border border-transparent hover:border-primary-500/30"
               onClick={() => setShowUserMenu(false)}
             >
-              <Settings className="nav-icon text-primary-500" />
-              Profile Settings
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-primary-500/30 bg-primary-500/15 text-primary-600 shadow-inner shadow-primary-700/20 group-hover:bg-primary-500/25 group-hover:border-primary-500/50 transition-all duration-300">
+                <Settings className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <span className="flex-1">Profile Settings</span>
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="h-1 w-1 rounded-full bg-primary-500 animate-pulse"></div>
+              </div>
             </Link>
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left text-base text-red-500 transition-colors duration-300 hover:bg-red-50/80"
+              className="group relative flex w-full items-center gap-4 rounded-xl px-5 py-3.5 text-left text-base font-medium text-red-600 transition-all duration-300 hover:bg-gradient-to-r hover:from-red-500/20 hover:to-red-600/20 hover:text-red-700 hover:shadow-lg hover:shadow-red-500/20 border border-transparent hover:border-red-500/30 mt-2"
             >
-              <LogOut className="nav-icon text-red-500" />
-              Sign Out
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-red-500/30 bg-red-500/15 text-red-600 shadow-inner shadow-red-700/20 group-hover:bg-red-500/25 group-hover:border-red-500/50 transition-all duration-300">
+                <LogOut className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <span className="flex-1">Sign Out</span>
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="h-1 w-1 rounded-full bg-red-500 animate-pulse"></div>
+              </div>
             </button>
           </div>
         )}
@@ -110,12 +136,12 @@ export default function Navbar() {
         <Briefcase className="nav-icon text-secondary-500 group-hover:text-primary-500" />
         Jobs
       </Link>
-      <Link href="/career-map" className={`nav-link group ${isActive('/career-map') ? 'nav-link-active' : ''}`}>
-        <BookOpen className="nav-icon text-secondary-500 group-hover:text-primary-500" />
+      <Link href="/career-map" className={`nav-link group ${isActive('/career-map') ? 'nav-link-active-yellow' : ''}`}>
+        <BookOpen className={`nav-icon ${isActive('/career-map') ? 'text-yellow-500' : 'text-secondary-500 group-hover:text-primary-500'}`} />
         Career Map
       </Link>
-      <Link href="/community" className={`nav-link group ${isActive('/community') ? 'nav-link-active' : ''}`}>
-        <Users className="nav-icon text-secondary-500 group-hover:text-primary-500" />
+      <Link href="/community" className={`nav-link group ${isActive('/community') ? 'nav-link-active-green' : ''}`}>
+        <Users className={`nav-icon ${isActive('/community') ? 'text-green-500' : 'text-secondary-500 group-hover:text-primary-500'}`} />
         Community
       </Link>
       <Link href="/auth/login" className="btn-primary">
@@ -137,10 +163,10 @@ export default function Navbar() {
           My Applications
         </Link>
       )}
-      <Link href="/career-map" className={`nav-link-block ${isActive('/career-map') ? 'nav-link-block-active' : ''}`}>
+      <Link href="/career-map" className={`nav-link-block ${isActive('/career-map') ? 'nav-link-block-active-yellow' : ''}`}>
         Career Map
       </Link>
-      <Link href="/community" className={`nav-link-block ${isActive('/community') ? 'nav-link-block-active' : ''}`}>
+      <Link href="/community" className={`nav-link-block ${isActive('/community') ? 'nav-link-block-active-green' : ''}`}>
         Community
       </Link>
       <Link href="/dashboard" className={`nav-link-block ${isActive('/dashboard') ? 'nav-link-block-active' : ''}`}>
@@ -168,10 +194,10 @@ export default function Navbar() {
       <Link href="/jobs" className={`nav-link-block ${isActive('/jobs') ? 'nav-link-block-active' : ''}`}>
         Jobs
       </Link>
-      <Link href="/career-map" className={`nav-link-block ${isActive('/career-map') ? 'nav-link-block-active' : ''}`}>
+      <Link href="/career-map" className={`nav-link-block ${isActive('/career-map') ? 'nav-link-block-active-yellow' : ''}`}>
         Career Map
       </Link>
-      <Link href="/community" className={`nav-link-block ${isActive('/community') ? 'nav-link-block-active' : ''}`}>
+      <Link href="/community" className={`nav-link-block ${isActive('/community') ? 'nav-link-block-active-green' : ''}`}>
         Community
       </Link>
       <Link href="/auth/login" className="nav-link-block font-semibold text-primary-600">
