@@ -14,6 +14,16 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
+interface Attendee {
+  userId: string;
+  registeredAt: string;
+  attended?: boolean;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  profilePicture?: string;
+}
+
 interface Webinar {
   _id: string;
   title: string;
@@ -39,9 +49,12 @@ export default function WebinarDetailsPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [webinar, setWebinar] = useState<Webinar | null>(null);
+  const [attendees, setAttendees] = useState<Attendee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingAttendees, setLoadingAttendees] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [showAttendees, setShowAttendees] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -59,16 +72,38 @@ export default function WebinarDetailsPage() {
         
         // Check if user is registered
         if (user && data.webinar.attendees) {
+          const userId = (user as any)?._id || (user as any)?.id;
           const registered = data.webinar.attendees.some(
-            (a: any) => a.userId === (user as any).userId
+            (a: any) => a.userId === userId
           );
           setIsRegistered(registered);
+        }
+
+        // If user is the host, fetch attendee details
+        const userId = (user as any)?._id || (user as any)?.id;
+        if (userId && data.webinar.host.userId === userId) {
+          fetchAttendees();
         }
       }
     } catch (error) {
       console.error('Error fetching webinar:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAttendees = async () => {
+    try {
+      setLoadingAttendees(true);
+      const response = await fetch(`/api/webinars/${params.id}/attendees`);
+      if (response.ok) {
+        const data = await response.json();
+        setAttendees(data.attendees || []);
+      }
+    } catch (error) {
+      console.error('Error fetching attendees:', error);
+    } finally {
+      setLoadingAttendees(false);
     }
   };
 
@@ -322,6 +357,66 @@ export default function WebinarDetailsPage() {
               </a>
             )}
           </div>
+
+          {/* Attendees List (Host Only) */}
+          {webinar && user && webinar.host.userId === ((user as any)?._id || (user as any)?.id) && (
+            <div className="mt-8 border-t border-gray-200 pt-8">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Registered Attendees ({attendees.length})
+                </h3>
+                <button
+                  onClick={() => setShowAttendees(!showAttendees)}
+                  className="text-sm font-medium text-primary-600 hover:text-primary-500"
+                >
+                  {showAttendees ? 'Hide' : 'Show'} Attendees
+                </button>
+              </div>
+
+              {showAttendees && (
+                <div className="space-y-3">
+                  {loadingAttendees ? (
+                    <div className="text-center text-sm text-secondary-600">
+                      Loading attendees...
+                    </div>
+                  ) : attendees.length === 0 ? (
+                    <div className="rounded-lg bg-gray-50 p-4 text-center text-sm text-secondary-600">
+                      No attendees registered yet
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                      {attendees.map((attendee) => (
+                        <div
+                          key={attendee.userId}
+                          className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3"
+                        >
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-600">
+                            {attendee.firstName?.charAt(0)}
+                            {attendee.lastName?.charAt(0)}
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900">
+                              {attendee.firstName} {attendee.lastName}
+                            </p>
+                            <p className="text-xs text-secondary-600">
+                              {attendee.email}
+                            </p>
+                            <p className="text-xs text-secondary-500">
+                              Registered:{' '}
+                              {new Date(attendee.registeredAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          {attendee.attended && (
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
