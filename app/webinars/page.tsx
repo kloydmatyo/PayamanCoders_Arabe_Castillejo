@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Calendar, Clock, Users, Video, Plus, Filter, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, Users, Video, Plus, Filter } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface Webinar {
@@ -243,14 +243,6 @@ export default function WebinarsPage() {
                     {webinar.maxAttendees && ` / ${webinar.maxAttendees}`}{' '}
                     registered
                   </div>
-                </div>
-
-                {/* View Details Button */}
-                <div className="mt-4 border-t border-gray-200 pt-4">
-                  <button className="btn-primary flex w-full items-center justify-center gap-2 px-4 py-2 text-sm font-medium">
-                    View Details & Register
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
                 </div>
               </Link>
             ))}

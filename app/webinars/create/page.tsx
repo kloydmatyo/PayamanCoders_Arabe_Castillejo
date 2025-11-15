@@ -166,9 +166,19 @@ export default function CreateWebinarPage() {
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                 placeholder="https://meet.google.com/xxx-xxxx-xxx"
               />
-              <p className="mt-1 text-xs text-secondary-500">
-                Create a Google Meet link and paste it here. Attendees will see this after registering.
-              </p>
+              <div className="mt-2 rounded-lg border border-blue-200 bg-blue-50 p-3">
+                <p className="mb-2 text-xs font-medium text-blue-900">
+                  📝 How to create a Google Meet link:
+                </p>
+                <ol className="ml-4 list-decimal space-y-1 text-xs text-blue-700">
+                  <li>Go to <a href="https://meet.google.com" target="_blank" rel="noopener noreferrer" className="underline">meet.google.com</a></li>
+                  <li>Click "New meeting" → "Create a meeting for later"</li>
+                  <li>Copy the meeting link and paste it above</li>
+                </ol>
+                <p className="mt-2 text-xs text-blue-600">
+                  💡 Registered attendees will see this link and can add the webinar to their Google Calendar automatically!
+                </p>
+              </div>
             </div>
 
             {/* Category */}

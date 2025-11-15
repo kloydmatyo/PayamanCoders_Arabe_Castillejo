@@ -314,18 +314,46 @@ export default function WebinarDetailsPage() {
                   ? 'The webinar is live now! Click below to join.'
                   : 'Save this link to join the webinar when it starts.'}
               </p>
-              <a
-                href={webinar.meetLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`btn-primary flex items-center justify-center gap-2 px-6 py-3 ${
-                  isLive ? 'animate-pulse' : ''
-                }`}
-              >
-                <Video className="h-5 w-5" />
-                {isLive ? 'Join Meeting Now' : 'Open Google Meet Link'}
-                <ExternalLink className="h-4 w-4" />
-              </a>
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href={webinar.meetLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`btn-primary flex items-center justify-center gap-2 px-6 py-3 ${
+                    isLive ? 'animate-pulse' : ''
+                  }`}
+                >
+                  <Video className="h-5 w-5" />
+                  {isLive ? 'Join Meeting Now' : 'Open Google Meet Link'}
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+                {!isLive && (
+                  <a
+                    href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+                      webinar.title
+                    )}&dates=${new Date(webinar.scheduledDate)
+                      .toISOString()
+                      .replace(/[-:]/g, '')
+                      .replace(/\.\d{3}/, '')}/${new Date(
+                      new Date(webinar.scheduledDate).getTime() + webinar.duration * 60000
+                    )
+                      .toISOString()
+                      .replace(/[-:]/g, '')
+                      .replace(/\.\d{3}/, '')}&details=${encodeURIComponent(
+                      `${webinar.description}\n\nJoin here: ${webinar.meetLink}`
+                    )}&location=${encodeURIComponent(
+                      webinar.meetLink || 'Online'
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-secondary flex items-center justify-center gap-2 px-6 py-3"
+                  >
+                    <Calendar className="h-5 w-5" />
+                    Add to Google Calendar
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                )}
+              </div>
             </div>
           )}
 
