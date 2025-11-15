@@ -26,3 +26,12 @@ export * from './useUpload'
 
 // Notification hooks
 export * from './useNotifications'
+
+// Verification hooks
+export * from './useVerification'
+
+// Assessment hooks
+export * from './useAssessments'
+
+// Resume hooks
+export * from './useResume'
