@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import type { CSSProperties } from 'react'
 import Link from 'next/link'
 import { User, Mail, MapPin, Briefcase, GraduationCap, Clock, Globe } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
@@ -50,6 +51,12 @@ export default function ProfilePage() {
     availability: '',
     remote: false
   })
+  const [isEntering, setIsEntering] = useState(true)
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setIsEntering(false), 900)
+    return () => clearTimeout(timeout)
+  }, [])
 
   useEffect(() => {
     fetchProfile()
@@ -144,11 +151,19 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile Settings</h1>
-        <p className="text-gray-600">Manage your account information and preferences.</p>
+    <div className="hero-gradient relative min-h-screen overflow-hidden">
+      <div className="auth-background-grid" aria-hidden="true" />
+      {isEntering && <div className="auth-entry-overlay" />}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full bg-primary-500/20 blur-3xl"></div>
+        <div className="absolute right-[-10%] top-20 h-72 w-72 rounded-full bg-secondary-500/15 blur-3xl"></div>
       </div>
+      
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8 animate-[floatUp_0.85s_ease-out]">
+          <h1 className="auth-title text-3xl font-bold mb-3">Profile Settings</h1>
+          <p className="auth-subtitle text-base">Manage your account information and preferences.</p>
+        </div>
 
       {/* Password Management Section */}
       {authUser && (authUser.authProvider === 'google' || authUser.authProvider === 'hybrid') && (
@@ -262,92 +277,106 @@ export default function ProfilePage() {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">Personal Information</h2>
+      <div className="card overflow-hidden" style={{ '--float-delay': '0.1s' } as CSSProperties}>
+        <div className="px-8 py-6 border-b border-primary-500/30 flex justify-between items-center bg-gradient-to-r from-primary-500/10 via-primary-500/5 to-secondary-500/10 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-500/5 to-transparent animate-pulse"></div>
+          <h2 className="feature-heading text-3xl font-bold relative z-10 bg-gradient-to-r from-primary-600 via-secondary-600 to-primary-600 bg-clip-text text-transparent animate-[headlinePulse_3s_ease-in-out_infinite] drop-shadow-sm">
+            Personal Information
+          </h2>
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className={isEditing ? 'btn-secondary' : 'btn-primary'}
+            className={`relative z-10 ${isEditing ? 'btn-secondary' : 'btn-primary'} px-6 py-3 text-base font-semibold shadow-lg hover:shadow-xl hover:shadow-primary-500/30 transition-all duration-300 group`}
           >
-            {isEditing ? 'Cancel' : 'Edit Profile'}
+            <span className="relative z-10 flex items-center gap-2">
+              {isEditing ? 'Cancel' : 'Edit Profile'}
+              {!isEditing && (
+                <div className="h-1.5 w-1.5 rounded-full bg-white/80 group-hover:bg-white animate-pulse"></div>
+              )}
+            </span>
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-8">
           {isEditing ? (
-            <div className="space-y-6">
+            <div className="space-y-8 animate-[floatUp_0.5s_ease-out]">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="group">
+                  <label className="auth-label block text-sm font-bold uppercase tracking-[0.15em] text-primary-600 mb-3 flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary-500 animate-pulse"></div>
                     First Name
                   </label>
                   <input
                     type="text"
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="glass-input w-full px-5 py-3.5 text-base font-medium transition-all duration-300 group-hover:border-primary-500/50 focus:border-primary-500/70 focus:shadow-lg focus:shadow-primary-500/20"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="group">
+                  <label className="auth-label block text-sm font-bold uppercase tracking-[0.15em] text-primary-600 mb-3 flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary-500 animate-pulse"></div>
                     Last Name
                   </label>
                   <input
                     type="text"
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="glass-input w-full px-5 py-3.5 text-base font-medium transition-all duration-300 group-hover:border-primary-500/50 focus:border-primary-500/70 focus:shadow-lg focus:shadow-primary-500/20"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="group">
+                <label className="auth-label block text-sm font-bold uppercase tracking-[0.15em] text-primary-600 mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary-500 animate-pulse"></div>
                   Bio
                 </label>
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="glass-input w-full px-5 py-3.5 text-base font-medium resize-none transition-all duration-300 group-hover:border-primary-500/50 focus:border-primary-500/70 focus:shadow-lg focus:shadow-primary-500/20"
                   placeholder="Tell us about yourself..."
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="group">
+                <label className="auth-label block text-sm font-bold uppercase tracking-[0.15em] text-primary-600 mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary-500 animate-pulse"></div>
                   Skills (comma-separated)
                 </label>
                 <input
                   type="text"
                   value={formData.skills}
                   onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="glass-input w-full px-5 py-3.5 text-base font-medium transition-all duration-300 group-hover:border-primary-500/50 focus:border-primary-500/70 focus:shadow-lg focus:shadow-primary-500/20"
                   placeholder="JavaScript, React, Node.js, etc."
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="group">
+                  <label className="auth-label block text-sm font-bold uppercase tracking-[0.15em] text-primary-600 mb-3 flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary-500 animate-pulse"></div>
                     Location
                   </label>
                   <input
                     type="text"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="glass-input w-full px-5 py-3.5 text-base font-medium transition-all duration-300 group-hover:border-primary-500/50 focus:border-primary-500/70 focus:shadow-lg focus:shadow-primary-500/20"
                     placeholder="City, State/Country"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="group">
+                  <label className="auth-label block text-sm font-bold uppercase tracking-[0.15em] text-primary-600 mb-3 flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary-500 animate-pulse"></div>
                     Availability
                   </label>
                   <select
                     value={formData.availability}
                     onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="glass-input w-full px-5 py-3.5 text-base font-medium appearance-none bg-white/70 cursor-pointer transition-all duration-300 group-hover:border-primary-500/50 focus:border-primary-500/70 focus:shadow-lg focus:shadow-primary-500/20"
                   >
                     <option value="">Select availability</option>
                     <option value="full_time">Full Time</option>
@@ -358,94 +387,128 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="group">
+                <label className="auth-label block text-sm font-bold uppercase tracking-[0.15em] text-primary-600 mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary-500 animate-pulse"></div>
                   Experience
                 </label>
                 <textarea
                   value={formData.experience}
                   onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="glass-input w-full px-5 py-3.5 text-base font-medium resize-none transition-all duration-300 group-hover:border-primary-500/50 focus:border-primary-500/70 focus:shadow-lg focus:shadow-primary-500/20"
                   placeholder="Describe your work experience..."
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="group">
+                <label className="auth-label block text-sm font-bold uppercase tracking-[0.15em] text-primary-600 mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary-500 animate-pulse"></div>
                   Education
                 </label>
                 <textarea
                   value={formData.education}
                   onChange={(e) => setFormData({ ...formData, education: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="glass-input w-full px-5 py-3.5 text-base font-medium resize-none transition-all duration-300 group-hover:border-primary-500/50 focus:border-primary-500/70 focus:shadow-lg focus:shadow-primary-500/20"
                   placeholder="Describe your educational background..."
                 />
               </div>
 
-              <div className="flex items-center">
+              <div className="flex items-center p-6 rounded-xl border border-primary-500/30 bg-gradient-to-br from-primary-500/10 via-white/50 to-secondary-500/10 backdrop-blur group hover:border-primary-500/50 hover:shadow-lg hover:shadow-primary-500/20 transition-all duration-300">
                 <input
                   type="checkbox"
                   id="remote"
                   checked={formData.remote}
                   onChange={(e) => setFormData({ ...formData, remote: e.target.checked })}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  className="h-6 w-6 text-primary-600 focus:ring-primary-500 border-primary-500/40 rounded-md bg-white/80 cursor-pointer focus:ring-2 focus:ring-primary-500/50 shadow-inner shadow-primary-700/20 transition-all duration-300 checked:bg-primary-600 checked:border-primary-600"
                 />
-                <label htmlFor="remote" className="ml-2 block text-sm text-gray-700">
-                  Open to remote work
+                <label htmlFor="remote" className="ml-4 block text-lg font-semibold text-gray-900 cursor-pointer group-hover:text-primary-600 transition-colors duration-300 flex items-center gap-2">
+                  <span>Open to remote work</span>
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary-500 opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
                 </label>
               </div>
 
-              <div className="flex space-x-4">
-                <button onClick={handleSave} className="btn-primary">
-                  Save Changes
+              <div className="flex space-x-4 pt-6 border-t border-white/30">
+                <button onClick={handleSave} className="btn-primary px-10 py-4 text-base font-bold shadow-xl hover:shadow-2xl hover:shadow-primary-500/40 transition-all duration-300 group relative overflow-hidden">
+                  <span className="relative z-10 flex items-center gap-2">
+                    Save Changes
+                    <div className="h-1.5 w-1.5 rounded-full bg-white/80 group-hover:bg-white animate-pulse"></div>
+                  </span>
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="btn-secondary"
+                  className="btn-secondary px-10 py-4 text-base font-bold shadow-xl hover:shadow-2xl transition-all duration-300"
                 >
                   Cancel
                 </button>
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center text-xl font-bold">
-                  {user?.firstName?.[0]}{user?.lastName?.[0]}
+            <div className="space-y-8">
+              <div className="flex items-center space-x-6 p-6 rounded-2xl border border-primary-500/20 bg-gradient-to-br from-primary-500/10 via-white/40 to-secondary-500/10 backdrop-blur relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-500/5 to-transparent opacity-50"></div>
+                <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-500 text-white text-3xl font-bold shadow-inner shadow-primary-900/30 ring-4 ring-primary-500/40 group-hover:ring-primary-500/60 transition-all duration-300">
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/30 to-transparent"></div>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-t from-primary-700/40 to-transparent"></div>
+                  <span className="relative z-10 drop-shadow-lg">{user?.firstName?.[0]}{user?.lastName?.[0]}</span>
+                  <div className="absolute -inset-2 rounded-full bg-primary-500/50 blur-xl animate-pulse"></div>
+                  <div className="absolute -inset-1 rounded-full bg-primary-500/40 blur-md"></div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">
+                <div className="relative z-10">
+                  <h3 className="text-3xl font-bold bg-gradient-to-r from-primary-600 via-secondary-600 to-primary-600 bg-clip-text text-transparent mb-2 animate-[headlinePulse_3s_ease-in-out_infinite] drop-shadow-sm">
                     {user?.firstName} {user?.lastName}
                   </h3>
-                  <p className="text-gray-600 capitalize">{user?.role?.replace('_', ' ')}</p>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse shadow-lg shadow-green-500/50"></div>
+                    <p className="text-lg font-semibold text-secondary-600 capitalize tracking-wide">{user?.role?.replace('_', ' ')}</p>
+                  </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-center space-x-3">
-                  <Mail className="w-5 h-5 text-gray-400" />
-                  <span className="text-gray-700">{user?.email}</span>
+                <div className="feature-card p-6 flex items-center space-x-5 group hover:border-primary-500/50 transition-all duration-300">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-primary-500/40 bg-gradient-to-br from-primary-500/20 to-primary-600/20 text-primary-600 shadow-inner shadow-primary-700/30 group-hover:shadow-lg group-hover:shadow-primary-500/30 transition-all duration-300">
+                    <Mail className="h-7 w-7 group-hover:scale-110 transition-transform duration-300" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs font-bold uppercase tracking-[0.15em] text-primary-600 mb-2">Email</div>
+                    <span className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors duration-300">{user?.email}</span>
+                  </div>
                 </div>
                 {user?.profile?.location && (
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="w-5 h-5 text-gray-400" />
-                    <span className="text-gray-700">{user.profile.location}</span>
+                  <div className="feature-card p-5 flex items-center space-x-4 group">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary-500/30 bg-primary-500/15 text-primary-600 shadow-inner shadow-primary-700/20">
+                      <MapPin className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-secondary-500 mb-1">Location</div>
+                      <span className="text-base font-medium text-gray-900">{user.profile.location}</span>
+                    </div>
                   </div>
                 )}
                 {user?.profile?.availability && (
-                  <div className="flex items-center space-x-3">
-                    <Clock className="w-5 h-5 text-gray-400" />
-                    <span className="text-gray-700 capitalize">
-                      {user.profile.availability.replace('_', ' ')}
-                    </span>
+                  <div className="feature-card p-5 flex items-center space-x-4 group">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary-500/30 bg-primary-500/15 text-primary-600 shadow-inner shadow-primary-700/20">
+                      <Clock className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-secondary-500 mb-1">Availability</div>
+                      <span className="text-base font-medium text-gray-900 capitalize">
+                        {user.profile.availability.replace('_', ' ')}
+                      </span>
+                    </div>
                   </div>
                 )}
                 {user?.profile?.remote && (
-                  <div className="flex items-center space-x-3">
-                    <Globe className="w-5 h-5 text-gray-400" />
-                    <span className="text-gray-700">Remote work available</span>
+                  <div className="feature-card p-5 flex items-center space-x-4 group">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary-500/30 bg-primary-500/15 text-primary-600 shadow-inner shadow-primary-700/20">
+                      <Globe className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-secondary-500 mb-1">Remote Work</div>
+                      <span className="text-base font-medium text-gray-900">Available</span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -493,12 +556,23 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              <div className="text-sm text-gray-500">
-                Member since {new Date(user?.createdAt || '').toLocaleDateString()}
+              <div className="flex items-center gap-4 p-6 rounded-xl border border-primary-500/30 bg-gradient-to-br from-primary-500/10 via-white/50 to-secondary-500/10 backdrop-blur group hover:border-primary-500/50 transition-all duration-300">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-primary-500/40 bg-gradient-to-br from-primary-500/20 to-primary-600/20 text-primary-600 shadow-inner shadow-primary-700/30 group-hover:shadow-lg group-hover:shadow-primary-500/30 transition-all duration-300">
+                  <Clock className="h-7 w-7 group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs font-bold uppercase tracking-[0.15em] text-primary-600 mb-2">Member Since</div>
+                  <span className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors duration-300">
+                    {new Date(user?.createdAt || '').toLocaleDateString() !== "Invalid Date" 
+                      ? new Date(user?.createdAt || '').toLocaleDateString()
+                      : "N/A"}
+                  </span>
+                </div>
               </div>
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   )
