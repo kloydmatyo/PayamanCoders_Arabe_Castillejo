@@ -58,10 +58,23 @@ Respond in JSON format:
         return this.getFallbackMatch();
       }
 
-      const parsed = JSON.parse(output);
+      // Handle both string and object responses
+      let parsed;
+      if (typeof output === 'string') {
+        // Try to extract JSON from markdown code blocks if present
+        const jsonMatch = output.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+        const jsonStr = jsonMatch ? jsonMatch[1] : output;
+        parsed = JSON.parse(jsonStr);
+      } else if (typeof output === 'object') {
+        parsed = output;
+      } else {
+        console.error('Unexpected output type:', typeof output);
+        return this.getFallbackMatch();
+      }
+
       return {
-        score: Math.min(100, Math.max(0, parsed.score)),
-        reasoning: parsed.reasoning,
+        score: Math.min(100, Math.max(0, parsed.score || 0)),
+        reasoning: parsed.reasoning || 'Match analysis completed',
         strengths: parsed.strengths || [],
         gaps: parsed.gaps || []
       };
@@ -105,7 +118,20 @@ Return only a JSON array of job IDs in order of relevance: ["id1", "id2", "id3"]
         return jobs;
       }
 
-      const rankedIds = JSON.parse(output);
+      // Handle both string and object/array responses
+      let rankedIds;
+      if (typeof output === 'string') {
+        // Try to extract JSON array from markdown code blocks if present
+        const jsonMatch = output.match(/```(?:json)?\s*(\[[\s\S]*?\])\s*```/);
+        const jsonStr = jsonMatch ? jsonMatch[1] : output;
+        rankedIds = JSON.parse(jsonStr);
+      } else if (Array.isArray(output)) {
+        rankedIds = output;
+      } else {
+        console.error('Unexpected output type for recommendations:', typeof output);
+        return jobs;
+      }
+
       const rankedJobs = rankedIds
         .map((id: string) => jobs.find(job => job._id.toString() === id))
         .filter(Boolean);
@@ -153,7 +179,19 @@ Respond in JSON format:
         return this.getFallbackResumeAnalysis();
       }
 
-      return JSON.parse(output);
+      // Handle both string and object responses
+      let parsed;
+      if (typeof output === 'string') {
+        const jsonMatch = output.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+        const jsonStr = jsonMatch ? jsonMatch[1] : output;
+        parsed = JSON.parse(jsonStr);
+      } else if (typeof output === 'object') {
+        parsed = output;
+      } else {
+        return this.getFallbackResumeAnalysis();
+      }
+
+      return parsed;
     } catch (error) {
       console.error('Resume analysis error:', error);
       return this.getFallbackResumeAnalysis();

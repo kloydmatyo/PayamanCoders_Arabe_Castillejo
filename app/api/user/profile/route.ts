@@ -50,6 +50,13 @@ export async function PUT(request: NextRequest) {
 
     const updateData = await request.json()
     
+    // Clean up profile data - convert empty strings to undefined for enum fields
+    if (updateData.profile) {
+      if (updateData.profile.availability === '') {
+        delete updateData.profile.availability;
+      }
+    }
+    
     const updatedUser = await User.findByIdAndUpdate(
       user.userId,
       {

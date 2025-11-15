@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import OnboardingModal from "@/components/onboarding/OnboardingModal";
 
 interface UserProfile {
   _id: string;
@@ -48,7 +49,7 @@ interface Notification {
   read: boolean;
 }
 
-interface Internship {
+interface AIRecommendation {
   _id: string;
   title: string;
   company: string;
@@ -56,37 +57,71 @@ interface Internship {
   location: string;
   type: string;
   remote: boolean;
+  matchScore?: number;
+  matchReason?: string;
 }
 
 export default function JobSeekerHomepage() {
   const { user } = useAuth();
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [applicationStats, setApplicationStats] = useState<ApplicationStats>({
     applications: 0,
   });
   const [applications, setApplications] = useState<Application[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [internships, setInternships] = useState<Internship[]>([]);
+  const [recommendations, setRecommendations] = useState<AIRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  useEffect(() => {
+    // Check onboarding status when user is available
+    if (user?.role === 'job_seeker') {
+      checkOnboardingStatus();
+    }
+  }, [user]);
+
+  const checkOnboardingStatus = async () => {
+    try {
+      console.log('🔍 Checking onboarding status...');
+      const response = await fetch('/api/onboarding/status');
+      console.log('📡 Onboarding API response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Onboarding status data:', data);
+        
+        // Show onboarding if not completed
+        if (!data.onboarding?.completed) {
+          console.log('🎯 Opening onboarding modal - onboarding not completed');
+          setShowOnboarding(true);
+        } else {
+          console.log('✔️ Onboarding already completed, skipping modal');
+        }
+      } else {
+        console.error('❌ Onboarding API returned error:', response.status);
+      }
+    } catch (error) {
+      console.error('❌ Failed to check onboarding status:', error);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
 
       // Fetch all data in parallel
-      const [profileRes, statsRes, applicationsRes, notificationsRes, internshipsRes] =
+      const [profileRes, statsRes, applicationsRes, notificationsRes] =
         await Promise.all([
           fetch("/api/user/profile"),
           fetch("/api/dashboard/stats"),
           fetch("/api/dashboard/applications"),
           fetch("/api/notifications"),
-          fetch("/api/dashboard/recommendations?limit=4"),
         ]);
 
       if (profileRes.ok) {
@@ -132,10 +167,8 @@ export default function JobSeekerHomepage() {
         ]);
       }
 
-      if (internshipsRes.ok) {
-        const internshipsData = await internshipsRes.json();
-        setInternships(internshipsData.recommendations || []);
-      }
+      // Fetch AI recommendations separately after profile is loaded
+      fetchAIRecommendations();
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       setError("Failed to load dashboard data");
@@ -144,23 +177,34 @@ export default function JobSeekerHomepage() {
     }
   };
 
-  const loadMoreInternships = async () => {
+  const fetchAIRecommendations = async () => {
     try {
-      setLoadingMore(true);
-      const response = await fetch(
-        `/api/dashboard/recommendations?limit=4&offset=${internships.length}`
-      );
-
+      setLoadingRecommendations(true);
+      console.log('🤖 Fetching AI-powered recommendations based on skills...');
+      
+      const response = await fetch('/api/ai/recommendations');
+      
       if (response.ok) {
         const data = await response.json();
-        setInternships((prev) => [...prev, ...(data.recommendations || [])]);
+        console.log('✅ AI recommendations received:', data.recommendations?.length || 0);
+        setRecommendations(data.recommendations || []);
+      } else {
+        console.error('❌ Failed to fetch AI recommendations:', response.status);
+        // Fallback to regular recommendations if AI fails
+        const fallbackRes = await fetch('/api/dashboard/recommendations?limit=6');
+        if (fallbackRes.ok) {
+          const fallbackData = await fallbackRes.json();
+          setRecommendations(fallbackData.recommendations || []);
+        }
       }
     } catch (error) {
-      console.error("Error loading more internships:", error);
+      console.error('Error fetching AI recommendations:', error);
     } finally {
-      setLoadingMore(false);
+      setLoadingRecommendations(false);
     }
   };
+
+
 
   if (loading) {
     return (
@@ -219,7 +263,17 @@ export default function JobSeekerHomepage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
+    <>
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onComplete={() => {
+          setShowOnboarding(false);
+          fetchDashboardData();
+        }}
+      />
+      
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
 
       {/* Welcome Banner */}
       <div className="relative overflow-hidden border-b border-white/30 bg-white/60 backdrop-blur-xl">
@@ -410,71 +464,147 @@ export default function JobSeekerHomepage() {
             </div>
           </div>
 
-          {/* Right Column: Recommended Internships */}
+          {/* Right Column: AI-Powered Recommendations */}
           <div className="lg:col-span-2">
             <div className="surface-panel">
-              <h2 className="mb-6 text-xl font-semibold text-gray-900">
-                Recommended Internships
-              </h2>
-
-              {/* Internships Grid */}
-              <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-                {internships.length > 0 ? (
-                  internships.map((internship) => (
-                    <div
-                      key={internship._id}
-                      className="group rounded-2xl border border-white/40 bg-white/60 p-5 shadow-inner shadow-primary-900/5 backdrop-blur transition-all duration-400 hover:-translate-y-1 hover:border-primary-500/40 hover:shadow-xl hover:shadow-primary-900/10"
-                    >
-                      <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                        {internship.title}
-                      </h3>
-                      <p className="mb-2 text-sm text-secondary-600">
-                        {internship.company}
-                      </p>
-                      <p className="mb-4 line-clamp-2 text-sm text-secondary-600">
-                        {internship.description ||
-                          "Exciting opportunity to grow your career and gain valuable experience."}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs uppercase tracking-wide text-secondary-500">
-                          {internship.location}{" "}
-                          {internship.remote && "• Remote"}
-                        </span>
-                        <Link
-                          href={`/jobs/${internship._id}`}
-                          className="btn-primary px-4 py-2 text-xs font-semibold uppercase tracking-wide"
-                        >
-                          Apply now
-                          <ChevronRight className="ml-1 h-3 w-3" />
-                        </Link>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="col-span-2 rounded-3xl border border-dashed border-primary-500/40 bg-white/40 py-10 text-center backdrop-blur">
-                    <p className="mb-4 text-secondary-500">
-                      No recommendations available at the moment
-                    </p>
-                    <Link
-                      href="/jobs"
-                      className="btn-secondary px-5 py-2 text-sm"
-                    >
-                      Browse All Opportunities
-                    </Link>
-                  </div>
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    🤖 AI-Powered Recommendations
+                  </h2>
+                  <p className="mt-1 text-sm text-secondary-600">
+                    Personalized job matches based on your skills and profile
+                  </p>
+                </div>
+                {userProfile?.profile?.skills?.length === 0 && (
+                  <Link
+                    href="/profile"
+                    className="btn-secondary px-4 py-2 text-xs"
+                  >
+                    Add Skills
+                  </Link>
                 )}
               </div>
 
-              {/* Load More Button */}
-              {internships.length > 0 && (
+              {/* Loading State */}
+              {loadingRecommendations && (
+                <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse rounded-2xl border border-white/40 bg-white/60 p-5"
+                    >
+                      <div className="mb-2 h-6 w-3/4 rounded bg-white/70"></div>
+                      <div className="mb-2 h-4 w-1/2 rounded bg-white/70"></div>
+                      <div className="mb-4 h-4 w-full rounded bg-white/70"></div>
+                      <div className="flex items-center justify-between">
+                        <div className="h-3 w-1/3 rounded bg-white/70"></div>
+                        <div className="h-8 w-24 rounded bg-white/70"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Recommendations Grid */}
+              {!loadingRecommendations && (
+                <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                  {recommendations.length > 0 ? (
+                    recommendations.slice(0, 6).map((job) => (
+                      <div
+                        key={job._id}
+                        className="group relative rounded-2xl border border-white/40 bg-white/60 p-5 shadow-inner shadow-primary-900/5 backdrop-blur transition-all duration-400 hover:-translate-y-1 hover:border-primary-500/40 hover:shadow-xl hover:shadow-primary-900/10"
+                      >
+                        {/* Match Score Badge */}
+                        {job.matchScore && (
+                          <div className="absolute right-3 top-3">
+                            <span className="inline-flex items-center rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-2.5 py-1 text-xs font-semibold text-white shadow-lg">
+                              {Math.round(job.matchScore)}% Match
+                            </span>
+                          </div>
+                        )}
+
+                        <h3 className="mb-2 pr-20 text-lg font-semibold text-gray-900">
+                          {job.title}
+                        </h3>
+                        <p className="mb-2 text-sm font-medium text-secondary-600">
+                          {job.company}
+                        </p>
+                        
+                        {/* Match Reason */}
+                        {job.matchReason && (
+                          <div className="mb-3 rounded-lg bg-blue-50/50 p-2">
+                            <p className="text-xs text-blue-700">
+                              💡 {job.matchReason}
+                            </p>
+                          </div>
+                        )}
+
+                        <p className="mb-4 line-clamp-2 text-sm text-secondary-600">
+                          {job.description ||
+                            "Exciting opportunity to grow your career and gain valuable experience."}
+                        </p>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs uppercase tracking-wide text-secondary-500">
+                            {job.location}{" "}
+                            {job.remote && "• Remote"}
+                          </span>
+                          <Link
+                            href={`/jobs/${job._id}`}
+                            className="btn-primary px-4 py-2 text-xs font-semibold uppercase tracking-wide"
+                          >
+                            View Details
+                            <ChevronRight className="ml-1 h-3 w-3" />
+                          </Link>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-2 rounded-3xl border border-dashed border-primary-500/40 bg-white/40 py-10 text-center backdrop-blur">
+                      {userProfile?.profile?.skills?.length === 0 ? (
+                        <>
+                          <div className="mb-4 text-4xl">🎯</div>
+                          <p className="mb-2 font-medium text-gray-900">
+                            Add skills to get personalized recommendations
+                          </p>
+                          <p className="mb-4 text-sm text-secondary-500">
+                            Our AI will match you with the best opportunities based on your skills
+                          </p>
+                          <Link
+                            href="/profile"
+                            className="btn-primary px-5 py-2 text-sm"
+                          >
+                            Add Your Skills
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <p className="mb-4 text-secondary-500">
+                            No AI recommendations available at the moment
+                          </p>
+                          <Link
+                            href="/jobs"
+                            className="btn-secondary px-5 py-2 text-sm"
+                          >
+                            Browse All Opportunities
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* View All Jobs Link */}
+              {recommendations.length > 0 && (
                 <div className="text-center">
-                  <button
-                    onClick={loadMoreInternships}
-                    disabled={loadingMore}
-                    className="btn-ghost px-6 py-2 text-sm uppercase tracking-wide disabled:opacity-50 disabled:shadow-none"
+                  <Link
+                    href="/jobs"
+                    className="btn-ghost px-6 py-2 text-sm uppercase tracking-wide"
                   >
-                    {loadingMore ? "Loading..." : "Load More Opportunities"}
-                  </button>
+                    View All Job Opportunities
+                  </Link>
                 </div>
               )}
             </div>
@@ -482,5 +612,6 @@ export default function JobSeekerHomepage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
