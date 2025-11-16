@@ -86,18 +86,20 @@ export default function MessagesDropdown({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/60 text-secondary-600 shadow-sm backdrop-blur transition-all hover:bg-white/80 hover:text-primary-600 hover:shadow-md"
+        className="group relative flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-primary-500/40 bg-white/70 text-secondary-700 shadow-xl shadow-primary-700/20 backdrop-blur-xl transition-all hover:border-primary-500/70 hover:bg-white/90 hover:text-primary-600 hover:shadow-2xl hover:shadow-primary-500/50 hover:scale-110 duration-500 overflow-hidden"
       >
-        <MessageCircle className="h-5 w-5" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+        <MessageCircle className="h-7 w-7 relative z-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
         {totalUnread > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-lg ring-2 ring-white">
+          <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-600 text-xs font-bold text-white ring-2 ring-white shadow-lg shadow-red-500/50 z-20 group-hover:scale-125 transition-transform duration-300">
             {totalUnread > 9 ? '9+' : totalUnread}
           </span>
         )}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000"></div>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-12 z-50 w-80 sm:w-96 animate-[floatUp_0.3s_ease-out]">
+        <div className="absolute right-0 top-16 z-50 w-80 sm:w-96 animate-[floatUp_0.3s_ease-out]">
           <div className="rounded-2xl border-2 border-white/40 bg-white/95 shadow-2xl backdrop-blur-xl">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-200 p-4">

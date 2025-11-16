@@ -238,7 +238,7 @@ export default function Sidebar() {
           <button
             onClick={handleLogout}
             className={`
-              relative w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-500 group/logout overflow-hidden
+              relative w-full flex items-center gap-2 px-4 py-3.5 rounded-2xl transition-all duration-500 group/logout overflow-hidden
               text-secondary-700 hover:scale-[1.03] hover:shadow-lg hover:shadow-red-500/20
               ${isCollapsed ? 'justify-center px-3' : ''}
             `}
@@ -249,7 +249,7 @@ export default function Sidebar() {
               <LogOut className={`w-full h-full group-hover/logout:scale-110 group-hover/logout:-translate-x-1 group-hover/logout:drop-shadow-md transition-all duration-500 text-red-600 group-hover/logout:text-red-500`} />
             </div>
             {!isCollapsed && (
-              <span className="relative font-semibold text-base flex-1 group-hover/logout:text-red-600 transition-colors duration-300">
+              <span className="relative font-semibold text-base group-hover/logout:text-red-600 transition-colors duration-300">
                 Logout
               </span>
             )}

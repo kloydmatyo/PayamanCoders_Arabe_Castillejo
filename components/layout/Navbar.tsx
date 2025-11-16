@@ -54,14 +54,16 @@ export default function Navbar() {
   const AuthenticatedNav = () => (
     <>
       {/* Action Buttons */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-5">
         {/* Bookmarks Button */}
         <Link
           href="/bookmarks"
-          className="group relative flex items-center justify-center h-10 w-10 rounded-full border border-primary-500/40 bg-white/70 text-secondary-700 shadow-lg shadow-primary-700/20 backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 hover:border-primary-500/60 hover:bg-white/80 hover:text-primary-600 hover:shadow-xl hover:shadow-primary-500/30 transition-all duration-300"
+          className="group relative flex items-center justify-center h-14 w-14 rounded-2xl border-2 border-primary-500/40 bg-white/70 text-secondary-700 shadow-xl shadow-primary-700/20 backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 hover:border-primary-500/70 hover:bg-white/90 hover:text-primary-600 hover:shadow-2xl hover:shadow-primary-500/50 hover:scale-110 transition-all duration-500 overflow-hidden"
           title="My Bookmarks"
         >
-          <Bookmark className="h-5 w-5" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+          <Bookmark className="h-7 w-7 relative z-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000"></div>
         </Link>
 
         {/* Messages Dropdown */}
@@ -74,14 +76,16 @@ export default function Navbar() {
               e.stopPropagation()
               setShowNotifications(!showNotifications)
             }}
-            className="group relative flex items-center justify-center h-10 w-10 rounded-full border border-primary-500/40 bg-white/70 text-secondary-700 shadow-lg shadow-primary-700/20 backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 hover:border-primary-500/60 hover:bg-white/80 hover:text-primary-600 hover:shadow-xl hover:shadow-primary-500/30 transition-all duration-300"
+            className="group relative flex items-center justify-center h-14 w-14 rounded-2xl border-2 border-primary-500/40 bg-white/70 text-secondary-700 shadow-xl shadow-primary-700/20 backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 hover:border-primary-500/70 hover:bg-white/90 hover:text-primary-600 hover:shadow-2xl hover:shadow-primary-500/50 hover:scale-110 transition-all duration-500 overflow-hidden"
           >
-            <Bell className="h-5 w-5" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+            <Bell className="h-7 w-7 relative z-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white ring-2 ring-white">
+              <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-600 text-xs font-bold text-white ring-2 ring-white shadow-lg shadow-red-500/50 z-20 group-hover:scale-125 transition-transform duration-300">
                 {unreadCount}
               </span>
             )}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000"></div>
           </button>
 
           {showNotifications && (
@@ -146,24 +150,27 @@ export default function Navbar() {
             e.stopPropagation()
             setShowUserMenu(!showUserMenu)
           }}
-          className="group relative flex items-center gap-2 sm:gap-3 rounded-full border border-primary-500/40 bg-white/70 px-2 sm:px-3 py-2 text-secondary-700 shadow-lg shadow-primary-700/20 backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 hover:border-primary-500/60 hover:bg-white/80 hover:text-primary-600 hover:shadow-xl hover:shadow-primary-500/30 transition-all duration-300"
+          className="group relative flex items-center gap-3 sm:gap-4 rounded-2xl border-2 border-primary-500/40 bg-white/70 px-3 sm:px-4 py-2.5 text-secondary-700 shadow-xl shadow-primary-700/20 backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 hover:border-primary-500/70 hover:bg-white/90 hover:text-primary-600 hover:shadow-2xl hover:shadow-primary-500/50 hover:scale-105 transition-all duration-500 overflow-hidden"
         >
-          <div className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-500 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-primary-500/25 ring-2 ring-white/50 group-hover:scale-110 transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+          <div className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-500 text-base sm:text-lg font-bold text-white shadow-xl shadow-primary-500/40 ring-2 ring-white/50 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 z-10">
             {user?.firstName?.[0] && user?.lastName?.[0] ? (
               <span className="relative z-10">{user?.firstName?.[0]}{user?.lastName?.[0]}</span>
             ) : (
-              <User className="relative z-10 h-4 w-4 sm:h-5 sm:w-5" />
+              <User className="relative z-10 h-6 w-6 sm:h-7 sm:w-7" />
             )}
+            <div className="absolute -inset-1 bg-gradient-to-br from-primary-400/50 to-secondary-400/50 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           </div>
-          <div className="hidden sm:flex flex-col items-start min-w-0">
-            <span className="text-sm font-semibold text-gray-900 group-hover:text-primary-600 transition-colors duration-300 truncate max-w-[120px]">
+          <div className="hidden sm:flex flex-col items-start min-w-0 relative z-10">
+            <span className="text-base font-bold text-gray-900 group-hover:text-primary-600 transition-colors duration-300 truncate max-w-[120px]">
               {user?.firstName} {user?.lastName}
             </span>
-            <span className="text-xs text-secondary-600 capitalize truncate max-w-[120px]">
+            <span className="text-sm text-secondary-600 capitalize truncate max-w-[120px] font-medium">
               {user?.role?.replace('_', ' ')}
             </span>
           </div>
-          <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-primary-500/20 via-secondary-500/20 to-primary-500/20 opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300 -z-10"></div>
+          <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary-500/30 via-secondary-500/30 to-primary-500/30 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 -z-10"></div>
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000"></div>
         </button>
 
         {showUserMenu && (
@@ -197,11 +204,11 @@ export default function Navbar() {
               onClick={handleLogout}
               className="group relative flex w-full items-center gap-4 rounded-xl px-5 py-3.5 text-left text-base font-medium text-red-600 transition-all duration-300 hover:bg-gradient-to-r hover:from-red-500/20 hover:to-red-600/20 hover:text-red-700 hover:shadow-lg hover:shadow-red-500/20 border border-transparent hover:border-red-500/30 mt-2"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-red-500/30 bg-red-500/15 text-red-600 shadow-inner shadow-red-700/20 group-hover:bg-red-500/25 group-hover:border-red-500/50 transition-all duration-300">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-red-500/30 bg-red-500/15 text-red-600 shadow-inner shadow-red-700/20 group-hover:bg-red-500/25 group-hover:border-red-500/50 transition-all duration-300 flex-shrink-0">
                 <LogOut className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <span className="flex-1">Sign Out</span>
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <span className="flex-1 text-left">Sign Out</span>
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-shrink-0">
                 <div className="h-1 w-1 rounded-full bg-red-500 animate-pulse"></div>
               </div>
             </button>
