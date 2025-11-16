@@ -25,6 +25,7 @@ interface Job {
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState({
     type: '',
     location: '',
@@ -35,7 +36,7 @@ export default function JobsPage() {
 
   useEffect(() => {
     fetchJobs()
-  }, [filters])
+  }, [filters, searchQuery])
 
   useEffect(() => {
     const timeout = setTimeout(() => setIsEntering(false), 900)
@@ -45,6 +46,13 @@ export default function JobsPage() {
   const fetchJobs = async () => {
     try {
       const params = new URLSearchParams()
+      
+      // Add search query if present
+      if (searchQuery) {
+        params.append('search', searchQuery)
+      }
+      
+      // Add filters
       Object.entries(filters).forEach(([key, value]) => {
         if (value) params.append(key, value)
       })
@@ -113,6 +121,22 @@ export default function JobsPage() {
           </div>
 
           <div className="space-y-6 rounded-[2.5rem] border border-white/35 bg-white/70 p-10 shadow-[0_55px_120px_-65px_rgba(37,99,235,0.55)] backdrop-blur-2xl">
+            {/* Search Bar */}
+            <div className="space-y-3 text-left">
+              <label className="auth-label" htmlFor="search">
+                Search Jobs
+              </label>
+              <input
+                id="search"
+                type="text"
+                placeholder="Search by job title, company, or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="glass-input text-lg"
+              />
+            </div>
+
+            {/* Filters */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
               <div className="space-y-3 text-left">
                 <label className="auth-label" htmlFor="type">

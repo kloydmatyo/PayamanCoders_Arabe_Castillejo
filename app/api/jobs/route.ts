@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
+    const search = searchParams.get('search')
     const type = searchParams.get('type')
     const location = searchParams.get('location')
     const remote = searchParams.get('remote')
@@ -18,6 +19,15 @@ export async function GET(request: NextRequest) {
 
     // Build filter object
     const filter: any = { status: 'active' }
+    
+    // Add search functionality
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { company: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ]
+    }
     
     // If employer=true, filter by current user's jobs
     if (employer === 'true') {
