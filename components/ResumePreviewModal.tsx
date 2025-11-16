@@ -25,6 +25,16 @@ export default function ResumePreviewModal({
   useEffect(() => {
     if (isOpen && resumeUrl) {
       generatePreviewUrl();
+      
+      // Set a timeout to stop loading after 10 seconds
+      const timeout = setTimeout(() => {
+        if (loading) {
+          console.log('⏱️ Loading timeout - stopping loader');
+          setLoading(false);
+        }
+      }, 10000);
+      
+      return () => clearTimeout(timeout);
     }
   }, [isOpen, resumeUrl]);
 
