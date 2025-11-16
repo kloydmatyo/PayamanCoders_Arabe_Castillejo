@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import ProfileCard from '@/components/ProfileCard'
 
 interface Webinar {
   _id: string
@@ -36,6 +37,7 @@ interface Stats {
 export default function StudentHomepage() {
   const { user } = useAuth()
   const [upcomingWebinars, setUpcomingWebinars] = useState<Webinar[]>([])
+  const [userProfile, setUserProfile] = useState<any>(null)
   const [stats, setStats] = useState<Stats>({
     webinarsAttended: 0,
     assessmentsTaken: 0,
@@ -58,10 +60,16 @@ export default function StudentHomepage() {
     try {
       setLoading(true)
       
-      const [webinarsRes, certificatesRes] = await Promise.all([
+      const [profileRes, webinarsRes, certificatesRes] = await Promise.all([
+        fetch('/api/user/profile', { credentials: 'include' }),
         fetch('/api/webinars?status=scheduled&limit=3'),
         fetch('/api/certificates/user')
       ])
+
+      if (profileRes.ok) {
+        const profileData = await profileRes.json()
+        setUserProfile(profileData.user)
+      }
 
       if (webinarsRes.ok) {
         const data = await webinarsRes.json()
@@ -293,6 +301,53 @@ export default function StudentHomepage() {
           </div>
         </div>
 
+        {/* Profile and Tips Section */}
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Profile Card */}
+          <ProfileCard userProfile={userProfile} />
+
+          {/* Tips Cards */}
+          <div className="lg:col-span-2 grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="card border-blue-200/50 bg-gradient-to-br from-blue-50/50 to-white">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Student Tips</h3>
+              </div>
+              <ul className="space-y-2 text-sm text-secondary-700">
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600">•</span>
+                  <span>Complete skill assessments to earn certificates</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600">•</span>
+                  <span>Attend webinars to learn from industry experts</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600">•</span>
+                  <span>Build your resume early to stand out</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="card border-green-200/50 bg-gradient-to-br from-green-50/50 to-white">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 text-green-600">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Your Progress</h3>
+              </div>
+              <p className="mb-3 text-sm text-secondary-700">
+                Keep learning and growing your skills to prepare for your career!
+              </p>
+              <div className="text-xs text-secondary-600">
+                You're on the right track. Continue attending webinars and taking assessments.
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Learning Path */}
           <div className="card">
@@ -441,47 +496,6 @@ export default function StudentHomepage() {
                 ))}
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Tips Section */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="card border-blue-200/50 bg-gradient-to-br from-blue-50/50 to-white">
-            <div className="mb-3 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <h3 className="font-semibold text-gray-900">Student Tips</h3>
-            </div>
-            <ul className="space-y-2 text-sm text-secondary-700">
-              <li className="flex items-start gap-2">
-                <span className="text-blue-600">•</span>
-                <span>Complete skill assessments to earn certificates</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-600">•</span>
-                <span>Attend webinars to learn from industry experts</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-600">•</span>
-                <span>Build your resume early to stand out</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="card border-green-200/50 bg-gradient-to-br from-green-50/50 to-white">
-            <div className="mb-3 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 text-green-600">
-                <TrendingUp className="h-5 w-5" />
-              </div>
-              <h3 className="font-semibold text-gray-900">Your Progress</h3>
-            </div>
-            <p className="mb-3 text-sm text-secondary-700">
-              Keep learning and growing your skills to prepare for your career!
-            </p>
-            <div className="text-xs text-secondary-600">
-              You're on the right track. Continue attending webinars and taking assessments.
-            </div>
           </div>
         </div>
       </div>

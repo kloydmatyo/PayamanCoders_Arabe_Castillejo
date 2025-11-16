@@ -14,6 +14,7 @@ import {
   ArrowRight
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import ProfileCard from '@/components/ProfileCard'
 
 interface Webinar {
   _id: string
@@ -35,6 +36,7 @@ interface Stats {
 export default function MentorHomepage() {
   const { user } = useAuth()
   const [webinars, setWebinars] = useState<Webinar[]>([])
+  const [userProfile, setUserProfile] = useState<any>(null)
   const [stats, setStats] = useState<Stats>({
     totalWebinars: 0,
     upcomingWebinars: 0,
@@ -52,6 +54,13 @@ export default function MentorHomepage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
+      
+      // Fetch profile data
+      const profileRes = await fetch('/api/user/profile', { credentials: 'include' })
+      if (profileRes.ok) {
+        const profileData = await profileRes.json()
+        setUserProfile(profileData.user)
+      }
       
       // Fetch mentor's webinars
       const response = await fetch('/api/webinars?status=all')
@@ -323,9 +332,14 @@ export default function MentorHomepage() {
           )}
         </div>
 
-        {/* Tips Section */}
-        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="card border-blue-200/50 bg-blue-50/50">
+        {/* Profile and Tips Section */}
+        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Profile Card */}
+          <ProfileCard userProfile={userProfile} />
+
+          {/* Tips Cards */}
+          <div className="lg:col-span-2 grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="card border-blue-200/50 bg-blue-50/50">
             <div className="mb-3 flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
                 <AlertCircle className="h-5 w-5" />
@@ -348,18 +362,19 @@ export default function MentorHomepage() {
             </ul>
           </div>
 
-          <div className="card border-green-200/50 bg-green-50/50">
-            <div className="mb-3 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 text-green-600">
-                <TrendingUp className="h-5 w-5" />
+            <div className="card border-green-200/50 bg-green-50/50">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 text-green-600">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Your Impact</h3>
               </div>
-              <h3 className="font-semibold text-gray-900">Your Impact</h3>
-            </div>
-            <p className="mb-3 text-sm text-secondary-700">
-              You've helped {stats.totalAttendees} job seekers through your webinars!
-            </p>
-            <div className="text-xs text-secondary-600">
-              Keep up the great work. Your expertise is making a real difference in people's careers.
+              <p className="mb-3 text-sm text-secondary-700">
+                You've helped {stats.totalAttendees} job seekers through your webinars!
+              </p>
+              <div className="text-xs text-secondary-600">
+                Keep up the great work. Your expertise is making a real difference in people's careers.
+              </div>
             </div>
           </div>
         </div>

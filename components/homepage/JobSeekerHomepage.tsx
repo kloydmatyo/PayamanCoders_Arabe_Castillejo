@@ -30,6 +30,10 @@ interface UserProfile {
     skills: string[];
     location?: string;
     profilePicture?: string;
+    experience?: string;
+    education?: string;
+    availability?: string;
+    remote?: boolean;
   };
 }
 
@@ -416,7 +420,43 @@ export default function JobSeekerHomepage() {
                   </div>
                 </div>
 
-                {/* Career Interests */}
+                {/* About */}
+                {userProfile?.profile?.bio && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-secondary-600">
+                      About
+                    </h4>
+                    <p className="text-sm text-secondary-700 leading-relaxed">
+                      {userProfile.profile.bio}
+                    </p>
+                  </div>
+                )}
+
+                {/* Experience */}
+                {userProfile?.profile?.experience && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-secondary-600">
+                      Experience
+                    </h4>
+                    <p className="text-sm text-secondary-700">
+                      {userProfile.profile.experience}
+                    </p>
+                  </div>
+                )}
+
+                {/* Education */}
+                {userProfile?.profile?.education && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-secondary-600">
+                      Education
+                    </h4>
+                    <p className="text-sm text-secondary-700">
+                      {userProfile.profile.education}
+                    </p>
+                  </div>
+                )}
+
+                {/* Skills & Interests */}
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium text-secondary-600">
                     Skills & Interests
