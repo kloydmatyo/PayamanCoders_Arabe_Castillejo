@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { verifyToken } from '@/lib/auth';
 import { getLearningResources } from '@/lib/ai-learning-resources';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const userToken = await verifyToken(request);
     
-    if (!session?.user?.id) {
+    if (!userToken) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -17,8 +16,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { careerTitle, skills } = body;
 
-    console.log('📥 Request body:', { careerTitle, skills });
-
     if (!careerTitle || !skills || !Array.isArray(skills)) {
       return NextResponse.json(
         { error: 'Career title and skills array are required' },
@@ -26,10 +23,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('🤖 Calling AI for learning resources...');
     const resources = await getLearningResources(careerTitle, skills);
-
-    console.log('✅ AI resources generated:', resources.length);
 
     return NextResponse.json({
       success: true,

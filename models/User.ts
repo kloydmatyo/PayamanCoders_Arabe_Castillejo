@@ -22,6 +22,28 @@ export interface IUser extends mongoose.Document {
     remote?: boolean
     profilePicture?: string
   }
+  careerPath?: {
+    title: string
+    description: string
+    matchScore: number
+    reasons: string[]
+    requiredSkills: string[]
+    salaryRange: string
+    growthPotential: string
+    selectedAt: Date
+  }
+  bookmarkedResources?: Array<{
+    title: string
+    description: string
+    url: string
+    type: string
+    platform: string
+    difficulty: string
+    estimatedTime: string
+    isFree: boolean
+    rating?: string
+    bookmarkedAt: Date
+  }>
   onboarding?: {
     completed: boolean
     currentStep: number
@@ -165,6 +187,34 @@ const UserSchema = new mongoose.Schema({
     },
     profilePicture: String,
   },
+  careerPath: {
+    title: String,
+    description: String,
+    matchScore: Number,
+    reasons: [String],
+    requiredSkills: [String],
+    salaryRange: String,
+    growthPotential: String,
+    selectedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+  bookmarkedResources: [{
+    title: String,
+    description: String,
+    url: String,
+    type: String,
+    platform: String,
+    difficulty: String,
+    estimatedTime: String,
+    isFree: Boolean,
+    rating: String,
+    bookmarkedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  }],
   resume: {
     filename: String,
     originalName: String,

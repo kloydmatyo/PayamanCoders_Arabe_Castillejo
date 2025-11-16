@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { User, LogOut, Settings, Bell } from 'lucide-react'
+import { User, LogOut, Settings, Bell, Bookmark } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Navbar() {
@@ -52,6 +52,16 @@ export default function Navbar() {
     <>
       {/* Notifications */}
       <div className="relative">
+        {/* Bookmarks Button */}
+        <Link
+          href="/bookmarks"
+          className="group relative flex items-center justify-center h-10 w-10 rounded-full border border-primary-500/40 bg-white/70 text-secondary-700 shadow-lg shadow-primary-700/20 backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 hover:border-primary-500/60 hover:bg-white/80 hover:text-primary-600 hover:shadow-xl hover:shadow-primary-500/30 transition-all duration-300"
+          title="My Bookmarks"
+        >
+          <Bookmark className="h-5 w-5" />
+        </Link>
+
+        {/* Notifications Button */}
         <button
           onClick={(e) => {
             e.stopPropagation()

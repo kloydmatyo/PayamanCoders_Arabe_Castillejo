@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { CSSProperties } from 'react';
-import { MapPin, TrendingUp, Target, BookOpen, CheckCircle, Star, Award, ExternalLink, Clock, DollarSign } from 'lucide-react';
+import { MapPin, TrendingUp, Target, BookOpen, CheckCircle, Star, Award, ExternalLink, Clock, DollarSign, Bookmark } from 'lucide-react';
 
 export default function CareerMapPage() {
   const [isEntering, setIsEntering] = useState(true);
@@ -14,17 +14,97 @@ export default function CareerMapPage() {
   const [learningResources, setLearningResources] = useState<any[]>([]);
   const [loadingResources, setLoadingResources] = useState(false);
   const [showResources, setShowResources] = useState(false);
+  const [bookmarkedUrls, setBookmarkedUrls] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const timeout = setTimeout(() => setIsEntering(false), 900);
     return () => clearTimeout(timeout);
   }, []);
 
+  // Load saved career path and bookmarks on mount
+  useEffect(() => {
+    loadSavedCareerPath();
+    loadBookmarksFromLocalStorage();
+  }, []);
+
+  const loadBookmarksFromLocalStorage = () => {
+    try {
+      const saved = localStorage.getItem('bookmarkedResources');
+      if (saved) {
+        const urls = new Set<string>(JSON.parse(saved));
+        setBookmarkedUrls(urls);
+      }
+    } catch (error) {
+      console.error('Error loading bookmarks from localStorage:', error);
+    }
+  };
+
+  const toggleBookmark = (resource: any, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('🔖 Toggling bookmark for:', resource.title);
+    const isBookmarked = bookmarkedUrls.has(resource.url);
+    console.log('📌 Currently bookmarked:', isBookmarked);
+    
+    // Load existing resources
+    const savedResources = localStorage.getItem('bookmarkedResourcesDetails');
+    let resources = savedResources ? JSON.parse(savedResources) : [];
+    
+    const newSet = new Set(bookmarkedUrls);
+    
+    if (isBookmarked) {
+      // Remove bookmark
+      console.log('🗑️ Removing bookmark');
+      newSet.delete(resource.url);
+      resources = resources.filter((r: any) => r.url !== resource.url);
+    } else {
+      // Add bookmark
+      console.log('➕ Adding bookmark');
+      newSet.add(resource.url);
+      resources.push(resource);
+    }
+    
+    // Save both URLs and full resource details
+    localStorage.setItem('bookmarkedResources', JSON.stringify(Array.from(newSet)));
+    localStorage.setItem('bookmarkedResourcesDetails', JSON.stringify(resources));
+    console.log('💾 Saved to localStorage. Total bookmarks:', newSet.size);
+    
+    setBookmarkedUrls(newSet);
+  };
+
+
+
+  const loadSavedCareerPath = async () => {
+    try {
+      console.log('🔄 Loading saved career path...');
+      const response = await fetch('/api/career-path');
+      console.log('📡 Response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📦 Received data:', data);
+        
+        if (data.careerPath) {
+          console.log('✅ Found saved career:', data.careerPath.title);
+          setSelectedCareer(data.careerPath);
+          setShowAIGuidance(false);
+        } else {
+          console.log('ℹ️ No saved career path found');
+        }
+      } else {
+        console.error('❌ Failed to load career path, status:', response.status);
+      }
+    } catch (error) {
+      console.error('❌ Error loading saved career path:', error);
+    }
+  };
+
+
+
   const getAICareerSuggestions = async () => {
-    console.log('🚀 Starting AI career suggestions...');
     try {
       setLoadingAI(true);
-      console.log('📤 Sending request with interests:', interests);
       
       const response = await fetch('/api/ai/career-suggestions', {
         method: 'POST',
@@ -32,11 +112,8 @@ export default function CareerMapPage() {
         body: JSON.stringify({ interests }),
       });
 
-      console.log('📡 Response status:', response.status);
-
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Received suggestions:', data);
         setAiSuggestions(data.suggestions || []);
         
         if (!data.suggestions || data.suggestions.length === 0) {
@@ -44,21 +121,37 @@ export default function CareerMapPage() {
         }
       } else {
         const error = await response.json();
-        console.error('❌ API Error:', error);
         alert(error.error || 'Failed to get AI suggestions');
       }
     } catch (error) {
-      console.error('❌ Error getting AI suggestions:', error);
+      console.error('Error getting AI suggestions:', error);
       alert(`Failed to get AI career suggestions: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoadingAI(false);
-      console.log('✅ AI suggestions request completed');
     }
   };
 
   const handleSelectCareer = (career: any) => {
+    // Batch state updates together
     setSelectedCareer(career);
     setShowAIGuidance(false);
+    
+    // Then save to database in the background (don't await)
+    fetch('/api/career-path', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ careerPath: career }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.careerPath) {
+          // Update with the saved data that includes selectedAt timestamp
+          setSelectedCareer(data.careerPath);
+        }
+      })
+      .catch(error => {
+        console.error('Error saving career path:', error);
+      });
   };
 
   const getLearningResources = async () => {
@@ -136,9 +229,19 @@ export default function CareerMapPage() {
             </div>
             {selectedCareer && (
               <button
-                onClick={() => {
-                  setShowAIGuidance(true);
-                  setSelectedCareer(null);
+                onClick={async () => {
+                  if (confirm('Are you sure you want to change your career path? Your current selection will be removed.')) {
+                    setShowAIGuidance(true);
+                    setSelectedCareer(null);
+                    setShowResources(false);
+                    setLearningResources([]);
+                    // Remove saved career path
+                    try {
+                      await fetch('/api/career-path', { method: 'DELETE' });
+                    } catch (error) {
+                      console.error('Error removing career path:', error);
+                    }
+                  }
                 }}
                 className="btn-secondary flex items-center gap-2"
               >
@@ -214,9 +317,8 @@ export default function CareerMapPage() {
                   {aiSuggestions.map((suggestion, index) => (
                     <div
                       key={index}
-                      className="feature-card p-6 cursor-pointer hover:shadow-xl transition-all"
+                      className="feature-card p-6 hover:shadow-xl transition-all"
                       style={{ '--float-delay': `${0.1 + index * 0.05}s` } as CSSProperties}
-                      onClick={() => handleSelectCareer(suggestion)}
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
@@ -277,7 +379,15 @@ export default function CareerMapPage() {
                       </div>
 
                       <div className="pt-4 border-t border-gray-100">
-                        <button className="btn-primary w-full">
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleSelectCareer(suggestion);
+                          }}
+                          className="btn-primary w-full"
+                          type="button"
+                        >
                           Select This Career Path
                         </button>
                       </div>
@@ -293,14 +403,27 @@ export default function CareerMapPage() {
         {selectedCareer && (
           <div className="card mb-8">
             <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center gap-3">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 text-white">
-                  <Target className="h-7 w-7" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 text-white">
+                    <Target className="h-7 w-7" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">{selectedCareer.title}</h2>
+                    <p className="text-secondary-600">Your Personalized Career Roadmap</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{selectedCareer.title}</h2>
-                  <p className="text-secondary-600">Your Personalized Career Roadmap</p>
-                </div>
+                {selectedCareer.selectedAt && (
+                  <div className="text-right">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
+                      <CheckCircle className="w-4 h-4" />
+                      Saved
+                    </span>
+                    <p className="text-xs text-secondary-600 mt-1">
+                      {new Date(selectedCareer.selectedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -416,66 +539,85 @@ export default function CareerMapPage() {
                   </div>
                 ) : learningResources.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {learningResources.map((resource, index) => (
-                      <a
-                        key={index}
-                        href={resource.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="feature-card p-5 hover:shadow-xl transition-all group"
-                        style={{ '--float-delay': `${0.05 + index * 0.03}s` } as CSSProperties}
-                      >
-                        <div className="flex items-start gap-3 mb-3">
-                          <span className="text-3xl">{getResourceIcon(resource.type)}</span>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors line-clamp-2">
-                              {resource.title}
-                            </h4>
-                            <p className="text-sm text-secondary-600 mb-2 line-clamp-2">
-                              {resource.description}
-                            </p>
+                    {learningResources.map((resource, index) => {
+                      const isBookmarked = bookmarkedUrls.has(resource.url);
+                      return (
+                        <a
+                          key={index}
+                          href={resource.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="feature-card p-5 hover:shadow-xl transition-all block group relative"
+                          style={{ '--float-delay': `${0.05 + index * 0.03}s` } as CSSProperties}
+                        >
+                          {/* Bookmark Button */}
+                          <div
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleBookmark(resource, e);
+                            }}
+                            className={`absolute top-3 right-3 z-20 p-2 rounded-lg transition-all cursor-pointer ${
+                              isBookmarked
+                                ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
+                                : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
+                            }`}
+                            title={isBookmarked ? 'Remove bookmark' : 'Bookmark this resource'}
+                          >
+                            <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
                           </div>
-                          <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-primary-600 transition-colors flex-shrink-0" />
-                        </div>
+                            <div className="flex items-start gap-3 mb-3 pr-12">
+                              <span className="text-3xl">{getResourceIcon(resource.type)}</span>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors line-clamp-2">
+                                  {resource.title}
+                                </h4>
+                                <p className="text-sm text-secondary-600 mb-2 line-clamp-2">
+                                  {resource.description}
+                                </p>
+                              </div>
+                              <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-primary-600 transition-colors flex-shrink-0" />
+                            </div>
 
-                        <div className="flex flex-wrap items-center gap-2 mb-3">
-                          <span className="text-xs font-medium px-2 py-1 rounded-full bg-primary-100 text-primary-700 border border-primary-200">
-                            {resource.platform}
-                          </span>
-                          <span className={`text-xs font-medium px-2 py-1 rounded-full border ${getDifficultyColor(resource.difficulty)}`}>
-                            {resource.difficulty}
-                          </span>
-                          <span className="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
-                            {resource.type}
-                          </span>
-                        </div>
+                            <div className="flex flex-wrap items-center gap-2 mb-3">
+                              <span className="text-xs font-medium px-2 py-1 rounded-full bg-primary-100 text-primary-700 border border-primary-200">
+                                {resource.platform}
+                              </span>
+                              <span className={`text-xs font-medium px-2 py-1 rounded-full border ${getDifficultyColor(resource.difficulty)}`}>
+                                {resource.difficulty}
+                              </span>
+                              <span className="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                                {resource.type}
+                              </span>
+                            </div>
 
-                        <div className="flex items-center justify-between text-xs text-secondary-600">
-                          <div className="flex items-center gap-3">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {resource.estimatedTime}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              {resource.isFree ? (
-                                <span className="text-green-600 font-semibold">Free</span>
-                              ) : (
-                                <>
-                                  <DollarSign className="w-3 h-3" />
-                                  Paid
-                                </>
+                            <div className="flex items-center justify-between text-xs text-secondary-600">
+                              <div className="flex items-center gap-3">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  {resource.estimatedTime}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  {resource.isFree ? (
+                                    <span className="text-green-600 font-semibold">Free</span>
+                                  ) : (
+                                    <>
+                                      <DollarSign className="w-3 h-3" />
+                                      Paid
+                                    </>
+                                  )}
+                                </span>
+                              </div>
+                              {resource.rating && (
+                                <span className="flex items-center gap-1">
+                                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                  {resource.rating}
+                                </span>
                               )}
-                            </span>
-                          </div>
-                          {resource.rating && (
-                            <span className="flex items-center gap-1">
-                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                              {resource.rating}
-                            </span>
-                          )}
-                        </div>
-                      </a>
-                    ))}
+                            </div>
+                        </a>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-8">

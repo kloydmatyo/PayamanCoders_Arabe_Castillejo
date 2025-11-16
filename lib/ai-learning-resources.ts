@@ -100,8 +100,26 @@ Respond in JSON format:
       if (output.content && typeof output.content === 'string') {
         console.log('📝 Extracting and parsing content from Bytez response...');
         const jsonMatch = output.content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-        const jsonStr = jsonMatch ? jsonMatch[1] : output.content;
-        parsed = JSON.parse(jsonStr);
+        let jsonStr = jsonMatch ? jsonMatch[1] : output.content;
+        
+        console.log('📝 Raw JSON string (first 500 chars):', jsonStr.substring(0, 500));
+        
+        try {
+          // Clean up common JSON issues
+          jsonStr = jsonStr
+            .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
+            .replace(/\n/g, ' ') // Remove newlines
+            .replace(/\r/g, '') // Remove carriage returns
+            .replace(/\t/g, ' ') // Replace tabs with spaces
+            .replace(/\s+/g, ' ') // Normalize whitespace
+            .trim();
+          
+          parsed = JSON.parse(jsonStr);
+        } catch (parseError) {
+          console.error('❌ JSON Parse Error:', parseError);
+          console.error('❌ Failed JSON string:', jsonStr);
+          throw new Error(`Failed to parse AI response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
+        }
       } else {
         console.log('🔍 Using object output directly');
         parsed = output;
