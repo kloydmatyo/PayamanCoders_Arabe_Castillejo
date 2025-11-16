@@ -150,6 +150,53 @@ export default function StudentHomepage() {
           </p>
         </div>
 
+        {/* Profile and Tips Section */}
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Profile Card */}
+          <ProfileCard userProfile={userProfile} />
+
+          {/* Tips Cards */}
+          <div className="lg:col-span-2 grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="card border-blue-200/50 bg-gradient-to-br from-blue-50/50 to-white">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Student Tips</h3>
+              </div>
+              <ul className="space-y-2 text-sm text-secondary-700">
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600">•</span>
+                  <span>Complete skill assessments to earn certificates</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600">•</span>
+                  <span>Attend webinars to learn from industry experts</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600">•</span>
+                  <span>Build your resume early to stand out</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="card border-green-200/50 bg-gradient-to-br from-green-50/50 to-white">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 text-green-600">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Your Progress</h3>
+              </div>
+              <p className="mb-3 text-sm text-secondary-700">
+                Keep learning and growing your skills to prepare for your career!
+              </p>
+              <div className="text-xs text-secondary-600">
+                You're on the right track. Continue attending webinars and taking assessments.
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div
