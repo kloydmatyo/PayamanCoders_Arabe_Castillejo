@@ -36,6 +36,8 @@ export default function CommunityPage() {
   const [submitting, setSubmitting] = useState(false);
   const [commentingPostId, setCommentingPostId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
+  const [postComments, setPostComments] = useState<{ [key: string]: any[] }>({});
+  const [loadingComments, setLoadingComments] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const timeout = setTimeout(() => setIsEntering(false), 900);
@@ -140,6 +142,36 @@ export default function CommunityPage() {
     }
   };
 
+  const fetchComments = async (postId: string, forceRefresh = false) => {
+    if (postComments[postId] && !forceRefresh) {
+      // Already loaded and not forcing refresh
+      return;
+    }
+
+    try {
+      setLoadingComments(prev => ({ ...prev, [postId]: true }));
+      const response = await fetch(`/api/community/posts/${postId}/comments`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setPostComments(prev => ({ ...prev, [postId]: data.comments }));
+      }
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    } finally {
+      setLoadingComments(prev => ({ ...prev, [postId]: false }));
+    }
+  };
+
+  const toggleComments = (postId: string) => {
+    if (commentingPostId === postId) {
+      setCommentingPostId(null);
+    } else {
+      setCommentingPostId(postId);
+      fetchComments(postId);
+    }
+  };
+
   const handleComment = async (postId: string) => {
     if (!commentText.trim()) {
       alert('Please enter a comment');
@@ -161,7 +193,9 @@ export default function CommunityPage() {
             : post
         ));
         setCommentText('');
-        setCommentingPostId(null);
+        
+        // Force refresh comments to show the new one
+        await fetchComments(postId, true);
       } else {
         alert('Failed to add comment');
       }
@@ -410,7 +444,7 @@ export default function CommunityPage() {
                           <span className="text-sm font-medium">{post.likes}</span>
                         </button>
                         <button 
-                          onClick={() => setCommentingPostId(commentingPostId === post.id ? null : post.id)}
+                          onClick={() => toggleComments(post.id)}
                           className="flex items-center gap-2 text-secondary-600 hover:text-primary-500 transition-colors"
                         >
                           <MessageSquare className="w-5 h-5" />
@@ -418,31 +452,71 @@ export default function CommunityPage() {
                         </button>
                       </div>
 
-                      {/* Comment Input */}
+                      {/* Comments Section */}
                       {commentingPostId === post.id && (
-                        <div className="flex gap-3 mt-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 text-white text-xs font-semibold flex-shrink-0">
-                            {user?.firstName?.[0]}{user?.lastName?.[0]}
-                          </div>
-                          <div className="flex-1 flex gap-2">
-                            <input
-                              type="text"
-                              value={commentText}
-                              onChange={(e) => setCommentText(e.target.value)}
-                              placeholder="Write a comment..."
-                              className="flex-1 px-4 py-2 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all text-sm"
-                              onKeyPress={(e) => {
-                                if (e.key === 'Enter') {
-                                  handleComment(post.id);
-                                }
-                              }}
-                            />
-                            <button
-                              onClick={() => handleComment(post.id)}
-                              className="btn-primary px-4 py-2 text-sm"
-                            >
-                              <Send className="w-4 h-4" />
-                            </button>
+                        <div className="space-y-4">
+                          {/* Existing Comments */}
+                          {loadingComments[post.id] ? (
+                            <div className="text-center py-4">
+                              <div className="futuristic-loader mx-auto" style={{ width: '30px', height: '30px' }}>
+                                <div className="futuristic-loader-inner"></div>
+                              </div>
+                            </div>
+                          ) : postComments[post.id] && postComments[post.id].length > 0 ? (
+                            <div className="space-y-3 max-h-60 overflow-y-auto">
+                              {postComments[post.id].map((comment: any) => (
+                                <div key={comment.id} className="flex gap-3 p-3 bg-gray-50 rounded-lg">
+                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-white text-xs font-semibold flex-shrink-0">
+                                    {comment.author.name.split(' ').map((n: string) => n[0]).join('')}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <p className="text-sm font-semibold text-gray-900">{comment.author.name}</p>
+                                      <span className="text-xs text-secondary-500">•</span>
+                                      <p className="text-xs text-secondary-500">{comment.author.role}</p>
+                                    </div>
+                                    <p className="text-sm text-gray-700">{comment.content}</p>
+                                    <p className="text-xs text-secondary-500 mt-1">
+                                      {new Date(comment.createdAt).toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                      })}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-secondary-500 text-center py-4">No comments yet. Be the first to comment!</p>
+                          )}
+
+                          {/* Comment Input */}
+                          <div className="flex gap-3 pt-3 border-t border-gray-100">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 text-white text-xs font-semibold flex-shrink-0">
+                              {user?.firstName?.[0]}{user?.lastName?.[0]}
+                            </div>
+                            <div className="flex-1 flex gap-2">
+                              <input
+                                type="text"
+                                value={commentText}
+                                onChange={(e) => setCommentText(e.target.value)}
+                                placeholder="Write a comment..."
+                                className="flex-1 px-4 py-2 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all text-sm"
+                                onKeyPress={(e) => {
+                                  if (e.key === 'Enter') {
+                                    handleComment(post.id);
+                                  }
+                                }}
+                              />
+                              <button
+                                onClick={() => handleComment(post.id)}
+                                className="btn-primary px-4 py-2 text-sm"
+                              >
+                                <Send className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       )}

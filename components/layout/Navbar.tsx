@@ -9,11 +9,34 @@ import { useAuth } from '@/contexts/AuthContext'
 export default function Navbar() {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
   const router = useRouter()
   const { user, loading, logout } = useAuth()
 
   const isAuthenticated = !!user
-  const unreadCount = 3 // This would come from your notifications API
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications()
+      // Poll for new notifications every 30 seconds
+      const interval = setInterval(fetchNotifications, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [isAuthenticated])
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch('/api/notifications')
+      if (response.ok) {
+        const data = await response.json()
+        setNotifications(data.notifications || [])
+        setUnreadCount(data.notifications?.filter((n: any) => !n.read).length || 0)
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error)
+    }
+  }
 
   const handleLogout = async () => {
     try {
@@ -50,46 +73,50 @@ export default function Navbar() {
               <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
             </div>
             <div className="max-h-96 overflow-y-auto">
-              <div className="p-3 hover:bg-primary-50/50 transition-colors cursor-pointer border-b border-gray-100">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 h-2 w-2 mt-2 rounded-full bg-blue-500"></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">New job match found</p>
-                    <p className="text-xs text-secondary-600 mt-1">A new job matches your skills and preferences</p>
-                    <p className="text-xs text-secondary-500 mt-1">2 hours ago</p>
-                  </div>
+              {notifications.length === 0 ? (
+                <div className="p-8 text-center">
+                  <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-sm text-secondary-600">No notifications yet</p>
                 </div>
-              </div>
-              <div className="p-3 hover:bg-primary-50/50 transition-colors cursor-pointer border-b border-gray-100">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 h-2 w-2 mt-2 rounded-full bg-green-500"></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">Application status updated</p>
-                    <p className="text-xs text-secondary-600 mt-1">Your application for Frontend Developer was reviewed</p>
-                    <p className="text-xs text-secondary-500 mt-1">5 hours ago</p>
+              ) : (
+                notifications.map((notification) => (
+                  <div 
+                    key={notification.id} 
+                    className="p-3 hover:bg-primary-50/50 transition-colors cursor-pointer border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="flex items-start gap-3">
+                      {!notification.read && (
+                        <div className="flex-shrink-0 h-2 w-2 mt-2 rounded-full bg-blue-500"></div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm ${notification.read ? 'text-secondary-600' : 'font-medium text-gray-900'}`}>
+                          {notification.message}
+                        </p>
+                        <p className="text-xs text-secondary-500 mt-1">
+                          {new Date(notification.createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="p-3 hover:bg-primary-50/50 transition-colors cursor-pointer">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 h-2 w-2 mt-2 rounded-full bg-purple-500"></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">New webinar available</p>
-                    <p className="text-xs text-secondary-600 mt-1">Join our upcoming career development webinar</p>
-                    <p className="text-xs text-secondary-500 mt-1">1 day ago</p>
-                  </div>
-                </div>
-              </div>
+                ))
+              )}
             </div>
-            <div className="p-3 border-t border-primary-500/20 text-center">
-              <Link
-                href="/notifications"
-                className="text-sm font-medium text-primary-600 hover:text-primary-700"
-                onClick={() => setShowNotifications(false)}
-              >
-                View all notifications
-              </Link>
-            </div>
+            {notifications.length > 0 && (
+              <div className="p-3 border-t border-primary-500/20 text-center">
+                <Link
+                  href="/notifications"
+                  className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                  onClick={() => setShowNotifications(false)}
+                >
+                  View all notifications
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>
