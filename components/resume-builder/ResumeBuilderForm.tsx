@@ -43,16 +43,12 @@ interface ResumeData {
 }
 
 interface ResumeBuilderFormProps {
-  jobDescription: string;
-  jobAnalysis: any;
   initialData?: ResumeData;
   onSave: (data: ResumeData) => void;
   onPreview: (data: ResumeData) => void;
 }
 
 export default function ResumeBuilderForm({ 
-  jobDescription, 
-  jobAnalysis,
   initialData,
   onSave, 
   onPreview 
@@ -101,7 +97,11 @@ export default function ResumeBuilderForm({
       const response = await fetch('/api/resume-builder/generate-summary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobDescription }),
+        body: JSON.stringify({ 
+          personalInfo: resumeData.personalInfo,
+          experience: resumeData.experience,
+          skills: resumeData.skills
+        }),
         credentials: 'include'
       });
 
@@ -128,8 +128,7 @@ export default function ResumeBuilderForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           bulletPoints: exp.achievements.filter(a => a.trim()),
-          jobTitle: exp.title,
-          jobDescription
+          jobTitle: exp.title
         }),
         credentials: 'include'
       });
@@ -147,8 +146,35 @@ export default function ResumeBuilderForm({
     }
   };
 
+  const sections = ['personal', 'summary', 'experience', 'education', 'skills'];
+
   const handleSave = () => {
     onSave(resumeData);
+  };
+
+  const handleNext = () => {
+    const currentIndex = sections.indexOf(activeSection);
+    
+    // Validate current section before moving to next
+    if (activeSection === 'personal') {
+      if (!resumeData.personalInfo.profilePicture) {
+        alert('Please upload a profile picture before continuing.');
+        return;
+      }
+      if (!resumeData.personalInfo.fullName || !resumeData.personalInfo.email || 
+          !resumeData.personalInfo.phone || !resumeData.personalInfo.location) {
+        alert('Please fill in all required personal information fields.');
+        return;
+      }
+    }
+    
+    // Move to next section or preview
+    if (currentIndex < sections.length - 1) {
+      setActiveSection(sections[currentIndex + 1]);
+    } else {
+      // Last section, go to preview
+      onPreview(resumeData);
+    }
   };
 
   const handlePreview = () => {
@@ -701,32 +727,6 @@ export default function ResumeBuilderForm({
         {activeSection === 'skills' && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Skills</h3>
-            
-            {jobAnalysis?.keySkills && (
-              <div className="p-4 bg-purple-50 rounded-lg">
-                <h4 className="text-sm font-medium text-purple-900 mb-2">
-                  💡 Recommended Skills from Job Description
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {jobAnalysis.keySkills.map((skill: string, idx: number) => (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        if (!resumeData.skills.includes(skill)) {
-                          setResumeData(prev => ({
-                            ...prev,
-                            skills: [...prev.skills, skill]
-                          }));
-                        }
-                      }}
-                      className="px-3 py-1 bg-white border border-purple-300 text-purple-700 rounded-full text-sm hover:bg-purple-100 transition-colors"
-                    >
-                      + {skill}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -798,17 +798,28 @@ export default function ResumeBuilderForm({
       <div className="border-t border-gray-200 px-6 py-4 flex gap-3">
         <button
           onClick={handleSave}
-          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
         >
           <Save className="w-5 h-5" />
           Save Draft
         </button>
         <button
-          onClick={handlePreview}
+          onClick={handleNext}
           className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all font-medium"
         >
-          <Eye className="w-5 h-5" />
-          Preview Resume
+          {activeSection === 'skills' ? (
+            <>
+              <Eye className="w-5 h-5" />
+              Preview Resume
+            </>
+          ) : (
+            <>
+              Next
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </>
+          )}
         </button>
       </div>
     </div>

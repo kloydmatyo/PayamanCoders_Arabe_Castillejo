@@ -14,15 +14,10 @@ import {
 } from 'lucide-react';
 import ResumeBuilderForm from '@/components/resume-builder/ResumeBuilderForm';
 import ResumePreview from '@/components/resume-builder/ResumePreview';
-import ATSScoreCard from '@/components/resume-builder/ATSScoreCard';
-import JobDescriptionInput from '@/components/resume-builder/JobDescriptionInput';
 
 export default function ResumeBuilderPage() {
-  const [step, setStep] = useState<'job' | 'build' | 'preview'>('job');
-  const [jobDescription, setJobDescription] = useState('');
-  const [jobAnalysis, setJobAnalysis] = useState<any>(null);
+  const [step, setStep] = useState<'build' | 'preview'>('build');
   const [resumeData, setResumeData] = useState<any>(null);
-  const [atsScore, setAtsScore] = useState<any>(null);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50">
@@ -34,12 +29,12 @@ export default function ResumeBuilderPage() {
               <FileText className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              Smart Resume Builder
+              Resume Builder
             </h1>
             <Sparkles className="w-6 h-6 text-purple-600 animate-pulse" />
           </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Create a professional, ATS-optimized resume tailored to your target job in minutes
+            Create a professional resume in minutes
           </p>
         </div>
 
@@ -48,24 +43,11 @@ export default function ResumeBuilderPage() {
           <div className="flex items-center justify-center gap-4">
             <StepIndicator 
               number={1} 
-              label="Job Description" 
-              active={step === 'job'}
-              completed={step !== 'job'}
-            />
-            <div className="w-16 h-1 bg-gray-300 rounded">
-              <div 
-                className={`h-full bg-purple-600 rounded transition-all ${
-                  step !== 'job' ? 'w-full' : 'w-0'
-                }`}
-              />
-            </div>
-            <StepIndicator 
-              number={2} 
               label="Build Resume" 
               active={step === 'build'}
               completed={step === 'preview'}
             />
-            <div className="w-16 h-1 bg-gray-300 rounded">
+            <div className="w-24 h-1 bg-gray-300 rounded">
               <div 
                 className={`h-full bg-purple-600 rounded transition-all ${
                   step === 'preview' ? 'w-full' : 'w-0'
@@ -73,7 +55,7 @@ export default function ResumeBuilderPage() {
               />
             </div>
             <StepIndicator 
-              number={3} 
+              number={2} 
               label="Preview & Download" 
               active={step === 'preview'}
               completed={false}
@@ -85,20 +67,8 @@ export default function ResumeBuilderPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Form/Input */}
           <div className="lg:col-span-2">
-            {step === 'job' && (
-              <JobDescriptionInput
-                onAnalyze={(description, analysis) => {
-                  setJobDescription(description);
-                  setJobAnalysis(analysis);
-                  setStep('build');
-                }}
-              />
-            )}
-
             {step === 'build' && (
               <ResumeBuilderForm
-                jobDescription={jobDescription}
-                jobAnalysis={jobAnalysis}
                 initialData={resumeData}
                 onSave={(data: any) => {
                   setResumeData(data);
@@ -122,57 +92,8 @@ export default function ResumeBuilderPage() {
             )}
           </div>
 
-          {/* Right Column - AI Insights */}
+          {/* Right Column - Tips */}
           <div className="space-y-6">
-            {/* ATS Score Card */}
-            {resumeData && jobDescription && (
-              <ATSScoreCard
-                resumeData={resumeData}
-                jobDescription={jobDescription}
-                onScoreUpdate={setAtsScore}
-              />
-            )}
-
-            {/* Job Analysis Card */}
-            {jobAnalysis && (
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5 text-yellow-500" />
-                  Job Insights
-                </h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Key Skills Required</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {jobAnalysis.keySkills?.slice(0, 6).map((skill: string, idx: number) => (
-                        <span 
-                          key={idx}
-                          className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">ATS Keywords</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {jobAnalysis.atsKeywords?.slice(0, 5).map((keyword: string, idx: number) => (
-                        <span 
-                          key={idx}
-                          className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
-                        >
-                          {keyword}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Tips Card */}
             <div className="bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg p-6">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -190,11 +111,41 @@ export default function ResumeBuilderPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                  Match keywords from job description
+                  Highlight relevant skills and experience
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                   Keep it concise (1-2 pages max)
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  Proofread for spelling and grammar
+                </li>
+              </ul>
+            </div>
+
+            {/* Best Practices */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <Lightbulb className="w-5 h-5 text-yellow-500" />
+                Best Practices
+              </h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-600 font-bold">•</span>
+                  Include contact information at the top
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-600 font-bold">•</span>
+                  List work experience in reverse chronological order
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-600 font-bold">•</span>
+                  Focus on achievements, not just responsibilities
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-600 font-bold">•</span>
+                  Tailor your resume for each application
                 </li>
               </ul>
             </div>
