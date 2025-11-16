@@ -44,8 +44,10 @@ For each career suggestion, provide:
 3. Match score (0-100) based on their skills
 4. 3-4 specific reasons why this career matches their profile
 5. 5-6 key skills they should develop
-6. Typical salary range
+6. Typical salary range in Philippine Peso (₱)
 7. Growth potential (High/Medium/Low)
+
+IMPORTANT: Use Philippine Peso (₱) for all salary ranges. Consider Philippine market rates.
 
 Respond in JSON format:
 {
@@ -56,7 +58,7 @@ Respond in JSON format:
       "matchScore": 85,
       "reasons": ["reason 1", "reason 2", "reason 3"],
       "requiredSkills": ["skill 1", "skill 2", "skill 3", "skill 4", "skill 5"],
-      "salaryRange": "$XX,XXX - $XX,XXX",
+      "salaryRange": "₱XXX,XXX - ₱XXX,XXX",
       "growthPotential": "High"
     }
   ]
