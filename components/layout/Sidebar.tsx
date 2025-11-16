@@ -108,6 +108,12 @@ export default function Sidebar() {
       roles: ['employer']
     },
     { 
+      label: 'Create Assessment', 
+      href: '/admin/assessments/create', 
+      icon: Award,
+      roles: ['admin']
+    },
+    { 
       label: 'Verification', 
       href: '/verification', 
       icon: Shield,

@@ -2,11 +2,18 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Trash2, Save } from 'lucide-react'
+import { Plus, Trash2, Save, Sparkles, Loader2 } from 'lucide-react'
 
 export default function CreateAssessmentPage() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const [aiGenerating, setAiGenerating] = useState(false)
+  const [aiFormData, setAiFormData] = useState({
+    topic: '',
+    category: '',
+    difficulty: 'beginner' as 'beginner' | 'intermediate' | 'advanced',
+    numberOfQuestions: 10
+  })
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -27,6 +34,58 @@ export default function CreateAssessmentPage() {
       }
     ]
   })
+
+  const generateWithAI = async () => {
+    if (!aiFormData.topic || !aiFormData.category) {
+      alert('Please fill in topic and category for AI generation')
+      return
+    }
+
+    try {
+      setAiGenerating(true)
+      const response = await fetch('/api/assessments/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(aiFormData)
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const aiAssessment = data.assessment
+        
+        // Populate the form with AI-generated data
+        setFormData({
+          title: aiAssessment.title,
+          description: aiAssessment.description,
+          category: aiFormData.category,
+          difficulty: aiAssessment.difficulty,
+          duration: Math.max(30, aiAssessment.questions.length * 2),
+          passingScore: 70,
+          skills: aiFormData.topic,
+          questions: aiAssessment.questions.map((q: any, idx: number) => ({
+            id: String(idx + 1),
+            type: 'mcq',
+            question: q.question,
+            options: q.options,
+            correctAnswer: q.correctAnswer,
+            points: q.points || 1,
+            explanation: q.explanation || ''
+          }))
+        })
+        
+        alert(`✨ AI generated ${aiAssessment.questions.length} questions successfully!`)
+      } else {
+        const errorData = await response.json()
+        console.error('API Error:', errorData)
+        alert(`Failed to generate assessment: ${errorData.error || 'Unknown error'}\n${errorData.details || ''}`)
+      }
+    } catch (error) {
+      console.error('Error generating assessment:', error)
+      alert(`Failed to generate assessment with AI: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setAiGenerating(false)
+    }
+  }
 
   const addQuestion = () => {
     setFormData({
@@ -101,9 +160,112 @@ export default function CreateAssessmentPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* AI Generation Section */}
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg shadow-lg p-6">
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <Sparkles className="h-6 w-6 text-purple-600" />
+                <h2 className="text-xl font-semibold text-gray-900">AI Assessment Generator</h2>
+              </div>
+              <p className="text-sm text-gray-600">Let AI create high-quality, practical questions using GPT-4.1</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Topic *
+                </label>
+                <input
+                  type="text"
+                  value={aiFormData.topic}
+                  onChange={(e) => setAiFormData({ ...aiFormData, topic: e.target.value })}
+                  placeholder="e.g., React Hooks, Python Data Structures, Digital Marketing"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category *
+                </label>
+                <select
+                  value={aiFormData.category}
+                  onChange={(e) => setAiFormData({ ...aiFormData, category: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="">Select a category</option>
+                  <option value="Programming">Programming</option>
+                  <option value="Design">Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Business">Business</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Difficulty Level
+                </label>
+                <select
+                  value={aiFormData.difficulty}
+                  onChange={(e) => setAiFormData({ ...aiFormData, difficulty: e.target.value as any })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Number of Questions
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={aiFormData.numberOfQuestions}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    setAiFormData({ 
+                      ...aiFormData, 
+                      numberOfQuestions: val === '' ? 0 : Math.max(1, Math.min(20, parseInt(val) || 1))
+                    })
+                  }}
+                  onBlur={(e) => {
+                    if (e.target.value === '' || parseInt(e.target.value) < 1) {
+                      setAiFormData({ ...aiFormData, numberOfQuestions: 1 })
+                    }
+                  }}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={generateWithAI}
+              disabled={aiGenerating || !aiFormData.topic || !aiFormData.category}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              {aiGenerating ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Generating with AI...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-5 w-5" />
+                  Generate Assessment with AI
+                </>
+              )}
+            </button>
+          </div>
+
           {/* Basic Info */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
+            <p className="text-sm text-gray-600 mb-4">Review and edit AI-generated content, or fill in manually</p>
             
             <div className="space-y-4">
               <div>
