@@ -5,12 +5,15 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { User, LogOut, Settings, Bell, Bookmark } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import MessagesDropdown from '@/components/messaging/MessagesDropdown'
+import ChatBox from '@/components/messaging/ChatBox'
 
 export default function Navbar() {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState<any[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
+  const [activeChatId, setActiveChatId] = useState<string | null>(null)
   const router = useRouter()
   const { user, loading, logout } = useAuth()
 
@@ -60,6 +63,9 @@ export default function Navbar() {
         >
           <Bookmark className="h-5 w-5" />
         </Link>
+
+        {/* Messages Dropdown */}
+        <MessagesDropdown onConversationClick={(id) => setActiveChatId(id)} />
 
         {/* Notifications */}
         <div className="relative">
@@ -258,6 +264,14 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      {/* Chat Box */}
+      {activeChatId && (
+        <ChatBox
+          conversationId={activeChatId}
+          onClose={() => setActiveChatId(null)}
+        />
+      )}
     </nav>
   )
 }
