@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useMessaging } from '@/contexts/MessagingContext'
 import Link from 'next/link'
 import {
   Users,
@@ -14,6 +15,7 @@ import {
   BookOpen,
   ArrowLeft,
   Mail,
+  Send,
 } from 'lucide-react'
 
 interface MentorshipRequest {
@@ -48,8 +50,10 @@ interface MentorshipRequest {
 
 export default function MyMentorshipPage() {
   const { user } = useAuth()
+  const { openChat } = useMessaging()
   const [requests, setRequests] = useState<MentorshipRequest[]>([])
   const [loading, setLoading] = useState(true)
+  const [creatingConversation, setCreatingConversation] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -69,6 +73,26 @@ export default function MyMentorshipPage() {
       console.error('Error fetching requests:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const startConversation = async (mentorId: string) => {
+    try {
+      setCreatingConversation(true)
+      const response = await fetch('/api/messages/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ participantId: mentorId }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        openChat(data.conversation._id)
+      }
+    } catch (error) {
+      console.error('Error starting conversation:', error)
+    } finally {
+      setCreatingConversation(false)
     }
   }
 
@@ -304,15 +328,16 @@ export default function MyMentorshipPage() {
                       🎉 Congratulations! Your mentorship request was accepted!
                     </p>
                     <p className="text-xs text-secondary-600 mb-3">
-                      Reach out to your mentor to schedule your first meeting.
+                      Start a conversation with your mentor to schedule your first meeting.
                     </p>
-                    <a
-                      href={`mailto:${request.mentor.email}`}
-                      className="btn-primary inline-flex items-center gap-2 text-sm"
+                    <button
+                      onClick={() => startConversation(request.mentor._id)}
+                      disabled={creatingConversation}
+                      className="btn-primary inline-flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Mail className="h-4 w-4" />
-                      Email {request.mentor.firstName}
-                    </a>
+                      <Send className="h-4 w-4" />
+                      {creatingConversation ? 'Opening...' : `Message ${request.mentor.firstName}`}
+                    </button>
                   </div>
                 )}
               </div>

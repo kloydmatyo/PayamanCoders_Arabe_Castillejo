@@ -5,6 +5,12 @@ import Sidebar from '@/components/layout/Sidebar'
 import ConditionalFooter from '@/components/layout/ConditionalFooter'
 import Providers from '@/components/Providers'
 import AuthDebug from '@/components/AuthDebug'
+import dynamic from 'next/dynamic'
+
+const GlobalChatBox = dynamic(
+  () => import('@/components/messaging/GlobalChatBox'),
+  { ssr: false }
+)
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk' })
 
@@ -33,6 +39,7 @@ export default function RootLayout({
             </div>
             <AuthDebug />
           </div>
+          <GlobalChatBox />
         </Providers>
       </body>
     </html>
