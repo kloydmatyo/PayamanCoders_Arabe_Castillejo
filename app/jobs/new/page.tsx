@@ -3,15 +3,17 @@
 import { useState, CSSProperties } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { ArrowLeft, Save, Eye, Plus, X } from 'lucide-react'
+import { ArrowLeft, Save, Plus, X } from 'lucide-react'
 import Link from 'next/link'
+import JobCreatedModal from '@/components/modals/JobCreatedModal'
 
 export default function NewJobPage() {
   const router = useRouter()
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [createdJob, setCreatedJob] = useState<{ id: string; title: string } | null>(null)
 
   const [formData, setFormData] = useState({
     title: '',
@@ -99,7 +101,6 @@ export default function NewJobPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    setSuccess('')
 
     try {
       // Clean up the data
@@ -133,10 +134,11 @@ export default function NewJobPage() {
       const data = await response.json()
 
       if (response.ok) {
-        setSuccess('Job posted successfully!')
-        setTimeout(() => {
-          router.push(`/jobs/${data.job._id}`)
-        }, 2000)
+        setCreatedJob({
+          id: data.job._id,
+          title: data.job.title
+        })
+        setShowSuccessModal(true)
       } else {
         setError(data.error || 'Failed to post job')
       }
@@ -173,12 +175,6 @@ export default function NewJobPage() {
       {error && (
         <div className="mb-6 card p-4 border-red-500/40 bg-red-500/10 text-red-600 animate-[floatUp_0.6s_ease-out_0.2s_both]" style={{ '--float-delay': '0.15s' } as CSSProperties}>
           {error}
-        </div>
-      )}
-
-      {success && (
-        <div className="mb-6 card p-4 border-green-500/40 bg-green-500/10 text-green-600 animate-[floatUp_0.6s_ease-out_0.2s_both]" style={{ '--float-delay': '0.15s' } as CSSProperties}>
-          {success}
         </div>
       )}
 
@@ -483,6 +479,15 @@ export default function NewJobPage() {
         </div>
       </form>
       </div>
+
+      {/* Success Modal */}
+      {createdJob && (
+        <JobCreatedModal
+          isOpen={showSuccessModal}
+          jobId={createdJob.id}
+          jobTitle={createdJob.title}
+        />
+      )}
     </div>
   )
 }
