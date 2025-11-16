@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { CSSProperties } from 'react';
-import { MapPin, TrendingUp, Target, BookOpen, CheckCircle, Star, Award } from 'lucide-react';
+import { MapPin, TrendingUp, Target, BookOpen, CheckCircle, Star, Award, ExternalLink, Clock, DollarSign } from 'lucide-react';
 
 export default function CareerMapPage() {
   const [isEntering, setIsEntering] = useState(true);
@@ -11,6 +11,9 @@ export default function CareerMapPage() {
   const [loadingAI, setLoadingAI] = useState(false);
   const [interests, setInterests] = useState('');
   const [selectedCareer, setSelectedCareer] = useState<any>(null);
+  const [learningResources, setLearningResources] = useState<any[]>([]);
+  const [loadingResources, setLoadingResources] = useState(false);
+  const [showResources, setShowResources] = useState(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => setIsEntering(false), 900);
@@ -56,6 +59,58 @@ export default function CareerMapPage() {
   const handleSelectCareer = (career: any) => {
     setSelectedCareer(career);
     setShowAIGuidance(false);
+  };
+
+  const getLearningResources = async () => {
+    if (!selectedCareer) return;
+    
+    try {
+      setLoadingResources(true);
+      setShowResources(true);
+      
+      const response = await fetch('/api/ai/learning-resources', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          careerTitle: selectedCareer.title,
+          skills: selectedCareer.requiredSkills || []
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setLearningResources(data.resources || []);
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to get learning resources');
+      }
+    } catch (error) {
+      console.error('❌ Error getting learning resources:', error);
+      alert('Failed to get learning resources');
+    } finally {
+      setLoadingResources(false);
+    }
+  };
+
+  const getResourceIcon = (type: string) => {
+    switch (type) {
+      case 'Course': return '🎓';
+      case 'Tutorial': return '📚';
+      case 'Documentation': return '📖';
+      case 'Video': return '🎥';
+      case 'Article': return '📝';
+      case 'Book': return '📕';
+      default: return '📌';
+    }
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'Beginner': return 'bg-green-100 text-green-700 border-green-200';
+      case 'Intermediate': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'Advanced': return 'bg-red-100 text-red-700 border-red-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
   };
 
   return (
@@ -312,38 +367,162 @@ export default function CareerMapPage() {
           </div>
         )}
 
-        {/* Resources */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="card">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
-                  <BookOpen className="h-5 w-5" />
+        {/* Learning Resources Section */}
+        {selectedCareer && (
+          <div className="card mb-8">
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                    <BookOpen className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">AI-Curated Learning Resources</h3>
+                    <p className="text-sm text-secondary-600">Personalized resources for {selectedCareer.title}</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Learning Resources</h3>
+                {!showResources && (
+                  <button 
+                    onClick={getLearningResources}
+                    disabled={loadingResources}
+                    className="btn-primary flex items-center gap-2"
+                  >
+                    {loadingResources ? (
+                      <>
+                        <div className="futuristic-loader" style={{ width: '16px', height: '16px' }}>
+                          <div className="futuristic-loader-inner"></div>
+                        </div>
+                        Searching...
+                      </>
+                    ) : (
+                      <>
+                        <Star className="w-4 h-4" />
+                        Get Resources
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
-              <p className="text-secondary-600 mb-4">
-                Explore courses and resources to advance your career
-              </p>
-              <button className="btn-primary w-full">Browse Resources</button>
             </div>
-          </div>
 
-          <div className="card">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-600">
-                  <Target className="h-5 w-5" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">Find a Mentor</h3>
+            {showResources && (
+              <div className="p-6">
+                {loadingResources ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <div className="futuristic-loader mb-4" style={{ width: '48px', height: '48px' }}>
+                      <div className="futuristic-loader-inner"></div>
+                    </div>
+                    <p className="text-secondary-600">AI is searching the internet for the best learning resources...</p>
+                  </div>
+                ) : learningResources.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {learningResources.map((resource, index) => (
+                      <a
+                        key={index}
+                        href={resource.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="feature-card p-5 hover:shadow-xl transition-all group"
+                        style={{ '--float-delay': `${0.05 + index * 0.03}s` } as CSSProperties}
+                      >
+                        <div className="flex items-start gap-3 mb-3">
+                          <span className="text-3xl">{getResourceIcon(resource.type)}</span>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors line-clamp-2">
+                              {resource.title}
+                            </h4>
+                            <p className="text-sm text-secondary-600 mb-2 line-clamp-2">
+                              {resource.description}
+                            </p>
+                          </div>
+                          <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-primary-600 transition-colors flex-shrink-0" />
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                          <span className="text-xs font-medium px-2 py-1 rounded-full bg-primary-100 text-primary-700 border border-primary-200">
+                            {resource.platform}
+                          </span>
+                          <span className={`text-xs font-medium px-2 py-1 rounded-full border ${getDifficultyColor(resource.difficulty)}`}>
+                            {resource.difficulty}
+                          </span>
+                          <span className="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                            {resource.type}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs text-secondary-600">
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {resource.estimatedTime}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              {resource.isFree ? (
+                                <span className="text-green-600 font-semibold">Free</span>
+                              ) : (
+                                <>
+                                  <DollarSign className="w-3 h-3" />
+                                  Paid
+                                </>
+                              )}
+                            </span>
+                          </div>
+                          {resource.rating && (
+                            <span className="flex items-center gap-1">
+                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                              {resource.rating}
+                            </span>
+                          )}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-secondary-600">No resources found. Please try again.</p>
+                  </div>
+                )}
               </div>
-              <p className="text-secondary-600 mb-4">
-                Connect with experienced professionals in your field
-              </p>
-              <button className="btn-secondary w-full">Find Mentors</button>
+            )}
+          </div>
+        )}
+
+        {/* Other Resources */}
+        {!selectedCareer && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="card">
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                    <BookOpen className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Learning Resources</h3>
+                </div>
+                <p className="text-secondary-600 mb-4">
+                  Select a career path to get AI-curated learning resources
+                </p>
+                <button className="btn-secondary w-full" disabled>
+                  Select Career First
+                </button>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-600">
+                    <Target className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Find a Mentor</h3>
+                </div>
+                <p className="text-secondary-600 mb-4">
+                  Connect with experienced professionals in your field
+                </p>
+                <button className="btn-secondary w-full">Find Mentors</button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
