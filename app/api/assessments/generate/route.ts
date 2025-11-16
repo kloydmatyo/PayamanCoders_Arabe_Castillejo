@@ -4,14 +4,15 @@ import { generateAssessment } from '@/lib/ai-assessment-generator'
 
 export async function POST(req: NextRequest) {
   try {
-    // TODO: Re-enable authentication after testing
-    // const currentUser = await verifyToken(req)
-    // if (!currentUser?.userId || currentUser.role !== 'admin') {
-    //   return NextResponse.json(
-    //     { error: 'Unauthorized - Admin access required' },
-    //     { status: 403 }
-    //   )
-    // }
+    const currentUser = await verifyToken(req)
+    
+    // Only admins can generate assessments
+    if (!currentUser?.userId || currentUser.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Unauthorized - Admin access required' },
+        { status: 403 }
+      )
+    }
 
     const { topic, difficulty, numberOfQuestions, category } = await req.json()
 

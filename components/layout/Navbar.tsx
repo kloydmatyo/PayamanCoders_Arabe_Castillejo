@@ -55,16 +55,18 @@ export default function Navbar() {
     <>
       {/* Action Buttons */}
       <div className="flex items-center gap-5">
-        {/* Bookmarks Button */}
-        <Link
-          href="/bookmarks"
-          className="group relative flex items-center justify-center h-14 w-14 rounded-2xl border-2 border-primary-500/40 bg-white/70 text-secondary-700 shadow-xl shadow-primary-700/20 backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 hover:border-primary-500/70 hover:bg-white/90 hover:text-primary-600 hover:shadow-2xl hover:shadow-primary-500/50 hover:scale-110 transition-all duration-500 overflow-hidden"
-          title="My Bookmarks"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
-          <Bookmark className="h-7 w-7 relative z-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000"></div>
-        </Link>
+        {/* Bookmarks Button - Only for students and job seekers */}
+        {(user?.role === 'student' || user?.role === 'job_seeker') && (
+          <Link
+            href="/bookmarks"
+            className="group relative flex items-center justify-center h-14 w-14 rounded-2xl border-2 border-primary-500/40 bg-white/70 text-secondary-700 shadow-xl shadow-primary-700/20 backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 hover:border-primary-500/70 hover:bg-white/90 hover:text-primary-600 hover:shadow-2xl hover:shadow-primary-500/50 hover:scale-110 transition-all duration-500 overflow-hidden"
+            title="My Bookmarks"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+            <Bookmark className="h-7 w-7 relative z-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000"></div>
+          </Link>
+        )}
 
         {/* Messages Dropdown */}
         <MessagesDropdown onConversationClick={openChat} />

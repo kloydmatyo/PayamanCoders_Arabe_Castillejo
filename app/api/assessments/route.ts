@@ -37,14 +37,13 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect()
     
-    // TODO: Re-enable authentication after testing
-    // const user = await verifyToken(request)
-    // if (!user || user.role !== 'admin') {
-    //   return NextResponse.json(
-    //     { error: 'Unauthorized - admin access required' },
-    //     { status: 401 }
-    //   )
-    // }
+    const user = await verifyToken(request)
+    if (!user || user.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Unauthorized - admin access required' },
+        { status: 401 }
+      )
+    }
     
     const data = await request.json()
     
@@ -62,13 +61,10 @@ export async function POST(request: NextRequest) {
     
     const mappedCategory = categoryMap[data.category] || 'technical'
     
-    // Create a temporary admin user ID (you should replace this with actual user ID)
-    const tempAdminId = new mongoose.Types.ObjectId()
-    
     const assessment = await Assessment.create({
       ...data,
       category: mappedCategory,
-      createdBy: tempAdminId
+      createdBy: user.userId
     })
     
     return NextResponse.json(

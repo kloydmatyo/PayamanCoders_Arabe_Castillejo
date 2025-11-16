@@ -4,7 +4,6 @@ import Navbar from '@/components/layout/Navbar'
 import Sidebar from '@/components/layout/Sidebar'
 import ConditionalFooter from '@/components/layout/ConditionalFooter'
 import Providers from '@/components/Providers'
-import AuthDebug from '@/components/AuthDebug'
 import dynamic from 'next/dynamic'
 
 const GlobalChatBox = dynamic(
@@ -37,7 +36,6 @@ export default function RootLayout({
               </main>
               <ConditionalFooter />
             </div>
-            <AuthDebug />
           </div>
           <GlobalChatBox />
         </Providers>

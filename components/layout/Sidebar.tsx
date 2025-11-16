@@ -52,7 +52,58 @@ export default function Sidebar() {
     return pathname?.startsWith(path)
   }
 
-  const navItems: NavItem[] = [
+  // Admin-specific navigation
+  const adminNavItems: NavItem[] = [
+    { label: 'Home', href: '/', icon: Home },
+    { label: 'Assessments', href: '/admin/assessments', icon: Award },
+    { label: 'Verification', href: '/admin/verification', icon: Shield },
+    { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+  ]
+
+  // Student-specific navigation
+  const studentNavItems: NavItem[] = [
+    { label: 'Home', href: '/', icon: Home },
+    { label: 'Jobs', href: '/jobs', icon: Briefcase },
+    { label: 'Resume Builder', href: '/resume-builder', icon: FileText },
+    { label: 'Career Map', href: '/career-map', icon: TrendingUp },
+    { label: 'Webinars', href: '/webinars', icon: Video },
+    { label: 'Mentors', href: '/mentors', icon: Users },
+    { label: 'My Mentorship', href: '/my-mentorship', icon: UserPlus },
+    { label: 'Community', href: '/community', icon: MessageCircle },
+    { label: 'Assessments', href: '/assessments', icon: Award },
+  ]
+
+  // Employer-specific navigation
+  const employerNavItems: NavItem[] = [
+    { label: 'Home', href: '/', icon: Home },
+    { label: 'Post Job', href: '/jobs/new', icon: Building2 },
+    { label: 'Verification', href: '/verification', icon: Shield },
+    { label: 'Community', href: '/community', icon: MessageCircle },
+  ]
+
+  // Job Seeker-specific navigation
+  const jobSeekerNavItems: NavItem[] = [
+    { label: 'Home', href: '/', icon: Home },
+    { label: 'Jobs', href: '/jobs', icon: Briefcase },
+    { label: 'Resume Builder', href: '/resume-builder', icon: FileText },
+    { label: 'Career Map', href: '/career-map', icon: TrendingUp },
+    { label: 'Webinars', href: '/webinars', icon: Video },
+    { label: 'Mentors', href: '/mentors', icon: Users },
+    { label: 'My Mentorship', href: '/my-mentorship', icon: UserPlus },
+    { label: 'Community', href: '/community', icon: MessageCircle },
+    { label: 'Assessments', href: '/assessments', icon: Award },
+  ]
+
+  // Mentor-specific navigation
+  const mentorNavItems: NavItem[] = [
+    { label: 'Home', href: '/', icon: Home },
+    { label: 'Webinars', href: '/webinars', icon: Video },
+    { label: 'Mentorship Requests', href: '/mentorship/requests', icon: Users },
+    { label: 'Community', href: '/community', icon: MessageCircle },
+  ]
+
+  // Regular user navigation
+  const regularNavItems: NavItem[] = [
     { label: 'Home', href: '/', icon: Home },
     { label: 'Jobs', href: '/jobs', icon: Briefcase },
     { 
@@ -74,7 +125,7 @@ export default function Sidebar() {
       label: 'My Mentorship', 
       href: '/my-mentorship', 
       icon: UserPlus,
-      roles: ['job_seeker', 'student']
+      roles: ['job_seeker']
     },
     { 
       label: 'Mentorship Requests', 
@@ -87,19 +138,19 @@ export default function Sidebar() {
       label: 'Assessments', 
       href: '/assessments', 
       icon: Award,
-      roles: ['job_seeker', 'student']
+      roles: ['job_seeker']
     },
     { 
       label: 'Certificates', 
       href: '/certificates', 
       icon: Award,
-      roles: ['job_seeker', 'student']
+      roles: ['job_seeker']
     },
     { 
       label: 'Resources', 
       href: '/resources', 
       icon: BookOpen,
-      roles: ['mentor', 'admin']
+      roles: ['mentor']
     },
     { 
       label: 'Post Job', 
@@ -108,24 +159,24 @@ export default function Sidebar() {
       roles: ['employer']
     },
     { 
-      label: 'Create Assessment', 
-      href: '/admin/assessments/create', 
-      icon: Award,
-      roles: ['admin']
-    },
-    { 
-      label: 'Verification', 
-      href: '/verification', 
-      icon: Shield,
-      roles: ['admin']
-    },
-    { 
       label: 'Analytics', 
       href: '/admin/analytics', 
       icon: BarChart3,
-      roles: ['admin', 'employer']
+      roles: ['employer']
     },
   ]
+
+  // Select navigation based on user role
+  const getNavItems = () => {
+    if (user?.role === 'admin') return adminNavItems
+    if (user?.role === 'student') return studentNavItems
+    if (user?.role === 'employer') return employerNavItems
+    if (user?.role === 'job_seeker') return jobSeekerNavItems
+    if (user?.role === 'mentor') return mentorNavItems
+    return regularNavItems
+  }
+
+  const navItems = getNavItems()
 
   const filteredNavItems = navItems.filter(item => {
     if (!item.roles) return true
