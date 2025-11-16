@@ -3,15 +3,17 @@
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { User, LogOut, Settings } from 'lucide-react'
+import { User, LogOut, Settings, Bell } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Navbar() {
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
   const router = useRouter()
   const { user, loading, logout } = useAuth()
 
   const isAuthenticated = !!user
+  const unreadCount = 3 // This would come from your notifications API
 
   const handleLogout = async () => {
     try {
@@ -25,6 +27,73 @@ export default function Navbar() {
 
   const AuthenticatedNav = () => (
     <>
+      {/* Notifications */}
+      <div className="relative">
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            setShowNotifications(!showNotifications)
+          }}
+          className="group relative flex items-center justify-center h-10 w-10 rounded-full border border-primary-500/40 bg-white/70 text-secondary-700 shadow-lg shadow-primary-700/20 backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 hover:border-primary-500/60 hover:bg-white/80 hover:text-primary-600 hover:shadow-xl hover:shadow-primary-500/30 transition-all duration-300"
+        >
+          <Bell className="h-5 w-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white ring-2 ring-white">
+              {unreadCount}
+            </span>
+          )}
+        </button>
+
+        {showNotifications && (
+          <div className="absolute right-0 mt-3 w-80 overflow-hidden rounded-2xl border border-primary-500/40 bg-white/90 shadow-2xl shadow-primary-700/20 backdrop-blur-xl animate-[floatUp_0.3s_ease-out]">
+            <div className="p-4 border-b border-primary-500/20">
+              <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+            </div>
+            <div className="max-h-96 overflow-y-auto">
+              <div className="p-3 hover:bg-primary-50/50 transition-colors cursor-pointer border-b border-gray-100">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 h-2 w-2 mt-2 rounded-full bg-blue-500"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900">New job match found</p>
+                    <p className="text-xs text-secondary-600 mt-1">A new job matches your skills and preferences</p>
+                    <p className="text-xs text-secondary-500 mt-1">2 hours ago</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-3 hover:bg-primary-50/50 transition-colors cursor-pointer border-b border-gray-100">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 h-2 w-2 mt-2 rounded-full bg-green-500"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900">Application status updated</p>
+                    <p className="text-xs text-secondary-600 mt-1">Your application for Frontend Developer was reviewed</p>
+                    <p className="text-xs text-secondary-500 mt-1">5 hours ago</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-3 hover:bg-primary-50/50 transition-colors cursor-pointer">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 h-2 w-2 mt-2 rounded-full bg-purple-500"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900">New webinar available</p>
+                    <p className="text-xs text-secondary-600 mt-1">Join our upcoming career development webinar</p>
+                    <p className="text-xs text-secondary-500 mt-1">1 day ago</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-3 border-t border-primary-500/20 text-center">
+              <Link
+                href="/notifications"
+                className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                onClick={() => setShowNotifications(false)}
+              >
+                View all notifications
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* User Menu */}
       <div className="relative">
         <button
@@ -108,17 +177,20 @@ export default function Navbar() {
     </>
   )
 
-  // Close user menu when clicking outside
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
       if (showUserMenu) {
         setShowUserMenu(false)
       }
+      if (showNotifications) {
+        setShowNotifications(false)
+      }
     }
 
     document.addEventListener('click', handleClickOutside)
     return () => document.removeEventListener('click', handleClickOutside)
-  }, [showUserMenu])
+  }, [showUserMenu, showNotifications])
 
   return (
     <nav className="relative z-50 border-b border-white/30 bg-white/60 shadow-lg shadow-primary-900/10 backdrop-blur-2xl transition-all duration-500">

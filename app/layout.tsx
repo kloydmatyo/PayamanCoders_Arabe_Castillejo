@@ -2,7 +2,7 @@ import './globals.css'
 import { Space_Grotesk } from 'next/font/google'
 import Navbar from '@/components/layout/Navbar'
 import Sidebar from '@/components/layout/Sidebar'
-import Footer from '@/components/layout/Footer'
+import ConditionalFooter from '@/components/layout/ConditionalFooter'
 import Providers from '@/components/Providers'
 import AuthDebug from '@/components/AuthDebug'
 
@@ -29,7 +29,7 @@ export default function RootLayout({
               <main className="flex-1 w-full">
                 {children}
               </main>
-              <Footer />
+              <ConditionalFooter />
             </div>
             <AuthDebug />
           </div>
