@@ -11,33 +11,46 @@
 ## ✨ Features
 
 ### 🎯 For Job Seekers & Students
-- **AI-Powered Resume Builder** - Create ATS-optimized resumes with AI assistance
-- **Smart Job Matching** - Find jobs that match your skills and career goals
-- **Skill Assessments** - Take assessments and earn verified certificates
-- **Career Path Visualization** - Interactive D3.js career roadmaps
-- **Interview Preparation** - AI-generated interview tips and practice questions
-- **Mentorship Matching** - Connect with industry mentors
-- **Application Tracking** - Monitor all your job applications in one place
+- **AI-Powered Resume Builder** - Create ATS-optimized resumes with AI assistance and real-time scoring
+- **Smart Job Matching** - AI-powered job recommendations based on your skills and profile
+- **Skill Assessments** - Take assessments and earn verified certificates with unique verification codes
+- **Career Path Visualization** - Interactive D3.js career roadmaps with personalized learning paths
+- **Interview Preparation** - AI-generated interview tips and practice questions using GPT-4o-mini
+- **Mentorship Matching** - Connect with industry mentors and request guidance
+- **Application Tracking** - Monitor all your job applications with status updates
+- **Job Search & Filters** - Advanced search with location, type, and remote work filters
+- **Bookmarking** - Save interesting jobs for later review
+- **Real-time Notifications** - Get notified about application updates and new opportunities
+- **Direct Messaging** - Communicate with employers and mentors
+- **Community Forum** - Engage with peers, share experiences, and get advice
+- **Webinar Attendance** - Join career development webinars from industry experts
 
 ### 💼 For Employers
-- **Job Posting Management** - Create and manage job listings
-- **Applicant Tracking System** - Review and manage applications
-- **Employer Verification** - Build trust with verified company badges
-- **Analytics Dashboard** - Track job performance and applicant metrics
-- **AI-Powered Screening** - Smart candidate matching
+- **Job Posting Management** - Create, edit, and manage job listings with rich descriptions
+- **Applicant Tracking System** - Review applications, update statuses, and manage candidates
+- **Employer Verification** - Build trust with AI-powered verification and trust scores
+- **Analytics Dashboard** - Track job performance, applicant metrics, and hiring statistics
+- **AI-Powered Screening** - Smart candidate matching based on job requirements
+- **Team Collaboration** - Invite team members and assign roles (recruiter, hiring manager)
+- **Application Status Management** - Update candidates through the hiring pipeline
+- **Success Modal** - Beautiful confirmation when jobs are posted successfully
 
 ### 👨‍🏫 For Mentors
-- **Webinar Hosting** - Create and manage career development webinars
-- **Mentorship Requests** - Accept and manage mentee connections
-- **Resource Sharing** - Share learning materials and guides
-- **Community Engagement** - Participate in community discussions
+- **Webinar Hosting** - Create and manage career development webinars with scheduling
+- **Mentorship Requests** - Accept and manage mentee connections with request tracking
+- **Resource Sharing** - Share learning materials, guides, and career advice
+- **Community Engagement** - Participate in community discussions and answer questions
+- **Attendee Management** - Track webinar registrations and attendees
+- **Impact Tracking** - Monitor your influence and total attendees reached
 
 ### 🛡️ For Administrators
-- **User Management** - Comprehensive user administration
-- **Verification System** - Review and approve employer verifications
-- **Assessment Creation** - AI-assisted assessment generation
-- **Platform Analytics** - Detailed insights with Chart.js visualizations
-- **Content Moderation** - Manage community posts and resources
+- **User Management** - Comprehensive user administration across all roles
+- **Verification System** - Review and approve employer verifications with AI assistance
+- **Assessment Creation** - AI-assisted assessment generation using GPT-4o-mini
+- **Platform Analytics** - Detailed insights with Chart.js visualizations and metrics
+- **Content Moderation** - Manage community posts, resources, and user reports
+- **Certificate Management** - Oversee certificate issuance and verification
+- **System Monitoring** - Track platform usage and performance metrics
 
 ## 🏗️ Tech Stack
 
@@ -162,7 +175,7 @@ workqit-platform/
 ## 🎨 Key Features Explained
 
 ### AI-Powered Assessment Generation
-Generate comprehensive skill assessments using GPT-4o-mini:
+Generate comprehensive skill assessments using GPT-4o-mini via Bytez API:
 ```typescript
 // lib/ai-assessment-generator.ts
 const assessment = await generateAssessment({
@@ -170,57 +183,107 @@ const assessment = await generateAssessment({
   difficulty: "intermediate",
   questionCount: 10
 });
+// Returns structured assessment with questions, options, and correct answers
 ```
 
-### Real-Time Updates
-Polling-based real-time system for notifications and messages:
+### Real-Time Updates System
+Polling-based real-time system for notifications and messages (30-second intervals):
 ```typescript
 // contexts/RealtimeContext.tsx
-// Polls every 30 seconds for updates
-const { notifications, messages } = useRealtimeData();
+// Automatically polls every 30 seconds for updates
+const { notifications, messages, unreadCount } = useRealtimeData();
+// Manual refresh available via RefreshButton component
 ```
 
 ### Role-Based Access Control
-Dynamic navigation and features based on user roles:
+Dynamic navigation and features based on user roles with custom dashboards:
 ```typescript
 // User roles: student, job_seeker, employer, mentor, admin
+// Each role gets a customized homepage and navigation
 if (user.role === 'employer') {
-  // Show employer-specific features
+  return <EmployerHomepage />
+} else if (user.role === 'student') {
+  return <StudentHomepage />
 }
+// Sidebar navigation adapts to user role automatically
 ```
 
 ### Resume Builder with ATS Scoring
-AI-powered resume optimization with ATS compatibility scoring:
+AI-powered resume optimization with ATS compatibility scoring and job matching:
 ```typescript
+// lib/resume-builder-ai.ts
 const atsScore = calculateATSScore(resume, jobDescription);
-// Returns score out of 100 with improvement suggestions
+// Returns score out of 100 with detailed improvement suggestions
+// Analyzes keywords, formatting, and content relevance
 ```
 
-## 🔐 Authentication
+### Certificate Verification System
+Public certificate verification with unique codes:
+```typescript
+// Server-side rendered verification page
+// URL: /certificates/verify/[code]
+// Displays certificate details, user info, and assessment scores
+// Prevents fraud with cryptographically secure verification codes
+```
+
+### Employer Verification with AI
+AI-powered employer verification using document analysis:
+```typescript
+// lib/ai-verification-service.ts
+const verificationResult = await analyzeVerificationDocuments({
+  companyName,
+  documents,
+  website
+});
+// Returns trust score and verification recommendations
+```
+
+## 🔐 Authentication & Security
 
 ### Local Authentication
-- Email/password registration
-- Secure password hashing with bcrypt
-- JWT token-based sessions
-- HTTP-only cookies
+- Email/password registration with validation
+- Secure password hashing with bcrypt (10 rounds)
+- JWT token-based sessions with expiration
+- HTTP-only cookies for XSS protection
+- Password strength validation
+- Secure password reset flow
 
 ### OAuth Integration
-- Google Sign-In
+- Google Sign-In with Google Auth Library
 - Hybrid accounts (local + OAuth)
 - Automatic account linking
+- Set password for OAuth accounts
+
+### Security Features
+- Role-based access control (RBAC)
+- Route protection via Next.js middleware
+- Input validation and sanitization
+- MongoDB injection prevention
+- CSRF protection via SameSite cookies
+- Secure file uploads via Cloudinary
 
 ## 📊 Database Models
 
 ### Core Collections
-- **users** - User accounts and profiles
-- **jobs** - Job postings
-- **applications** - Job applications
-- **assessments** - Skill assessments
-- **certificates** - Achievement certificates
-- **webinars** - Career webinars
-- **conversations** - Messaging threads
-- **community_posts** - Forum posts
-- **notifications** - User notifications
+- **users** - User accounts, profiles, and verification status
+- **jobs** - Job postings with requirements and skills
+- **applications** - Job applications with status tracking
+- **assessments** - Skill assessments with questions and answers
+- **assessment_attempts** - User assessment submissions and scores
+- **certificates** - Achievement certificates with verification codes
+- **webinars** - Career webinars with scheduling and attendees
+- **mentorship_requests** - Mentor-mentee connection requests
+- **conversations** - Direct messaging threads
+- **community_posts** - Forum posts with comments and likes
+- **notifications** - User notifications and alerts
+- **resources** - Learning materials shared by mentors
+
+### Key Features
+- Mongoose ODM for schema validation
+- Indexed fields for optimized queries
+- Relationship management with population
+- Timestamps on all documents
+- Soft delete capabilities where needed
 
 ## 🛠️ Development
 
@@ -376,26 +439,42 @@ npm install
 
 ## 🗺️ Roadmap
 
-### Phase 1 (Current)
+### Phase 1 (Completed ✅)
 - ✅ Core job posting and application system
-- ✅ AI-powered resume builder
+- ✅ AI-powered resume builder with ATS scoring
 - ✅ Skill assessments and certificates
-- ✅ Mentorship matching
-- ✅ Community forum
+- ✅ Certificate verification system
+- ✅ Mentorship matching and requests
+- ✅ Community forum with posts and comments
+- ✅ Real-time notifications (polling-based)
+- ✅ Webinar hosting and management
+- ✅ Role-based dashboards (5 user types)
+- ✅ Employer verification system
+- ✅ Interview preparation with AI tips
+- ✅ Career path visualization
+- ✅ Direct messaging system
+- ✅ Google OAuth integration
+- ✅ Job search and filtering
+- ✅ Application tracking system
+- ✅ Admin analytics dashboard
 
-### Phase 2 (Planned)
-- 🔄 WebSocket real-time messaging
-- 🔄 Video interview integration
-- 🔄 Advanced analytics dashboard
-- 🔄 Mobile application (React Native)
-- 🔄 Payment processing for premium features
+### Phase 2 (In Progress 🔄)
+- 🔄 Enhanced AI job matching algorithms
+- 🔄 Advanced analytics and insights
+- 🔄 Performance optimizations
+- 🔄 Comprehensive testing suite
+- 🔄 Mobile-responsive improvements
 
-### Phase 3 (Future)
+### Phase 3 (Planned 📋)
+- 📋 WebSocket real-time messaging
+- 📋 Video interview integration
+- 📋 Mobile application (React Native)
+- 📋 Payment processing for premium features
 - 📋 Multi-language support
-- 📋 Advanced AI job matching
 - 📋 Resume parsing from PDF
 - 📋 Automated interview scheduling
 - 📋 Company culture insights
+- 📋 Advanced reporting and exports
 
 ## 📄 License
 
@@ -429,4 +508,4 @@ If you find this project useful, please consider giving it a star on GitHub!
 
 **Built with ❤️ using Next.js, React, and TypeScript**
 
-*Last Updated: November 17, 2025*
+*Last Updated: November 28, 2025*
