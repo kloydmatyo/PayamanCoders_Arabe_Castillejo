@@ -478,10 +478,12 @@ export default function ResumeBuilderForm({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg">
+    <div className="card relative overflow-hidden group/form hover:shadow-2xl hover:shadow-primary-500/30 transition-all duration-500">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-transparent to-secondary-500/5 opacity-0 group-hover/form:opacity-100 transition-opacity duration-500" aria-hidden="true"></div>
+      
       {/* Section Tabs */}
-      <div className="border-b border-gray-200 px-6 pt-6">
-        <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="relative border-b border-primary-500/20 px-8 pt-8 bg-gradient-to-r from-primary-500/5 via-white/50 to-secondary-500/5">
+        <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
           {[
             { id: 'personal', label: 'Personal Info', icon: User },
             { id: 'summary', label: 'Summary', icon: Sparkles },
@@ -492,43 +494,34 @@ export default function ResumeBuilderForm({
             <button
               key={section.id}
               onClick={() => setActiveSection(section.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-t-lg font-medium transition-colors whitespace-nowrap ${
+              className={`relative flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 whitespace-nowrap group/tab ${
                 activeSection === section.id
-                  ? 'bg-purple-100 text-purple-700 border-b-2 border-purple-600'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-gradient-to-br from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-500/40 scale-105'
+                  : 'bg-white/60 text-secondary-600 hover:bg-white hover:text-primary-600 hover:shadow-md border border-white/40 backdrop-blur'
               }`}
             >
-              <section.icon className="w-4 h-4" />
-              {section.label}
+              <section.icon className={`w-5 h-5 transition-transform duration-300 ${
+                activeSection === section.id ? 'scale-110' : 'group-hover/tab:scale-110'
+              }`} />
+              <span className="text-sm">{section.label}</span>
+              {activeSection === section.id && (
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-12 h-1 bg-white rounded-full"></div>
+              )}
             </button>
           ))}
         </div>
       </div>
 
       {/* Form Content */}
-      <div className="p-6 max-h-[600px] overflow-y-auto">
+      <div className="p-8 max-h-[800px] overflow-y-auto custom-scrollbar">
         {/* Personal Info Section */}
         {activeSection === 'personal' && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
             
-            {/* Pre-populated Data Notification */}
-            {userProfile && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-blue-900 mb-1">
-                    Profile Data Pre-populated! ✨
-                  </p>
-                  <p className="text-xs text-blue-700">
-                    We've automatically filled in your information from your profile. You can edit or add more details below.
-                  </p>
-                </div>
-              </div>
-            )}
-            
+
             {/* Profile Picture Upload */}
-            <div className="mb-6 p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
+            <div className="mb-6 p-6 bg-gradient-to-br from-primary-50/50 to-secondary-50/50 rounded-2xl border-2 border-primary-200/50 hover:border-primary-300/70 transition-all duration-300 group/upload">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Profile Picture *
               </label>
@@ -609,9 +602,10 @@ export default function ResumeBuilderForm({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="group">
+                <label className="block text-sm font-bold text-primary-600 mb-2 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary-500 animate-pulse"></div>
                   Full Name *
                 </label>
                 <input
@@ -621,13 +615,14 @@ export default function ResumeBuilderForm({
                     ...prev,
                     personalInfo: { ...prev.personalInfo, fullName: e.target.value }
                   }))}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 border-2 border-primary-500/30 rounded-xl focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white/70 backdrop-blur transition-all duration-300 group-hover:border-primary-500/50 font-medium"
                   placeholder="John Doe"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="group">
+                <label className="block text-sm font-bold text-primary-600 mb-2 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary-500 animate-pulse"></div>
                   Email *
                 </label>
                 <input
@@ -637,13 +632,14 @@ export default function ResumeBuilderForm({
                     ...prev,
                     personalInfo: { ...prev.personalInfo, email: e.target.value }
                   }))}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 border-2 border-primary-500/30 rounded-xl focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white/70 backdrop-blur transition-all duration-300 group-hover:border-primary-500/50 font-medium"
                   placeholder="john@example.com"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="group">
+                <label className="block text-sm font-bold text-primary-600 mb-2 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary-500 animate-pulse"></div>
                   Phone *
                 </label>
                 <input
@@ -653,13 +649,14 @@ export default function ResumeBuilderForm({
                     ...prev,
                     personalInfo: { ...prev.personalInfo, phone: e.target.value }
                   }))}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 border-2 border-primary-500/30 rounded-xl focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white/70 backdrop-blur transition-all duration-300 group-hover:border-primary-500/50 font-medium"
                   placeholder="+1 (555) 123-4567"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="group">
+                <label className="block text-sm font-bold text-primary-600 mb-2 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary-500 animate-pulse"></div>
                   Location *
                 </label>
                 <input
@@ -669,13 +666,13 @@ export default function ResumeBuilderForm({
                     ...prev,
                     personalInfo: { ...prev.personalInfo, location: e.target.value }
                   }))}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 border-2 border-primary-500/30 rounded-xl focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white/70 backdrop-blur transition-all duration-300 group-hover:border-primary-500/50 font-medium"
                   placeholder="New York, NY"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="group">
+                <label className="block text-sm font-bold text-secondary-600 mb-2">
                   LinkedIn (Optional)
                 </label>
                 <input
@@ -685,13 +682,13 @@ export default function ResumeBuilderForm({
                     ...prev,
                     personalInfo: { ...prev.personalInfo, linkedin: e.target.value }
                   }))}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 border-2 border-secondary-500/20 rounded-xl focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white/70 backdrop-blur transition-all duration-300 group-hover:border-secondary-500/40 font-medium"
                   placeholder="linkedin.com/in/johndoe"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="group">
+                <label className="block text-sm font-bold text-secondary-600 mb-2">
                   Portfolio/Website (Optional)
                 </label>
                 <input
@@ -701,7 +698,7 @@ export default function ResumeBuilderForm({
                     ...prev,
                     personalInfo: { ...prev.personalInfo, portfolio: e.target.value }
                   }))}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 border-2 border-secondary-500/20 rounded-xl focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white/70 backdrop-blur transition-all duration-300 group-hover:border-secondary-500/40 font-medium"
                   placeholder="johndoe.com"
                 />
               </div>
@@ -727,7 +724,7 @@ export default function ResumeBuilderForm({
             <textarea
               value={resumeData.summary}
               onChange={(e) => setResumeData(prev => ({ ...prev, summary: e.target.value }))}
-              className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 resize-none"
+              className="w-full h-40 px-4 py-3 border-2 border-primary-500/30 rounded-xl focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white/70 backdrop-blur resize-none transition-all duration-300 hover:border-primary-500/50 font-medium"
               placeholder="Write a compelling 3-4 sentence summary highlighting your key qualifications and career goals..."
             />
 
@@ -763,28 +760,9 @@ export default function ResumeBuilderForm({
               </button>
             </div>
 
-            {/* Experience Guidance */}
-            {userProfile?.profile?.experience && (
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-                <Briefcase className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-green-900 mb-1">
-                    Experience from Your Profile
-                  </p>
-                  <p className="text-xs text-green-700 mb-2">
-                    We've added your experience description below. Please fill in the job title, company name, and dates to complete this section.
-                  </p>
-                  {resumeData.experience[0]?.achievements && resumeData.experience[0].achievements.length > 1 && (
-                    <p className="text-xs text-green-700">
-                      ✓ We also extracted {resumeData.experience[0].achievements.filter(a => a).length} achievement bullet points from your profile!
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
 
             {resumeData.experience.map((exp, expIndex) => (
-              <div key={expIndex} className="p-4 border border-gray-200 rounded-lg space-y-4">
+              <div key={expIndex} className="p-6 border-2 border-primary-500/20 rounded-2xl space-y-5 bg-gradient-to-br from-white/80 to-primary-50/30 backdrop-blur hover:border-primary-500/40 hover:shadow-lg transition-all duration-300 group/exp">
                 <div className="flex justify-between items-start">
                   <h4 className="font-medium text-gray-900">Experience #{expIndex + 1}</h4>
                   {resumeData.experience.length > 1 && (
@@ -991,23 +969,9 @@ export default function ResumeBuilderForm({
               </button>
             </div>
 
-            {/* Education Guidance */}
-            {userProfile?.profile?.education && (
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-                <GraduationCap className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-green-900 mb-1">
-                    Education from Your Profile
-                  </p>
-                  <p className="text-xs text-green-700">
-                    Your education information is available. Please select your degree type, field of study, institution, and graduation date from the dropdowns below.
-                  </p>
-                </div>
-              </div>
-            )}
 
             {resumeData.education.map((edu, eduIndex) => (
-              <div key={eduIndex} className="p-4 border border-gray-200 rounded-lg space-y-4">
+              <div key={eduIndex} className="p-6 border-2 border-primary-500/20 rounded-2xl space-y-5 bg-gradient-to-br from-white/80 to-primary-50/30 backdrop-blur hover:border-primary-500/40 hover:shadow-lg transition-all duration-300 group/edu">
                 <div className="flex justify-between items-start">
                   <h4 className="font-medium text-gray-900">Education #{eduIndex + 1}</h4>
                   {resumeData.education.length > 1 && (
@@ -1183,9 +1147,11 @@ export default function ResumeBuilderForm({
               </label>
               <div className="space-y-4">
                 {Object.entries(SKILLS_BY_CATEGORY).map(([category, skills]) => (
-                  <div key={category} className="border border-gray-200 rounded-lg p-4">
-                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <Code className="w-4 h-4 text-purple-600" />
+                  <div key={category} className="border-2 border-primary-500/20 rounded-2xl p-6 bg-gradient-to-br from-white/80 to-primary-50/30 backdrop-blur hover:border-primary-500/40 hover:shadow-lg transition-all duration-300">
+                    <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-3 text-base">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500/20 to-primary-600/20 border border-primary-500/30">
+                        <Code className="w-5 h-5 text-primary-600" />
+                      </div>
                       {category}
                     </h4>
                     <div className="flex flex-wrap gap-2">
@@ -1207,10 +1173,10 @@ export default function ResumeBuilderForm({
                                 }));
                               }
                             }}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
                               isSelected
-                                ? 'bg-purple-600 text-white shadow-md'
-                                : 'bg-white border border-gray-300 text-gray-700 hover:border-purple-400 hover:bg-purple-50'
+                                ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-500/40 scale-105 border-2 border-primary-400'
+                                : 'bg-white border-2 border-primary-500/20 text-gray-700 hover:border-primary-400 hover:bg-primary-50 hover:scale-105 hover:shadow-md'
                             }`}
                           >
                             {isSelected && '✓ '}
@@ -1273,27 +1239,28 @@ export default function ResumeBuilderForm({
       </div>
 
       {/* Action Buttons */}
-      <div className="border-t border-gray-200 px-6 py-4 flex gap-3">
+      <div className="relative border-t border-primary-500/20 px-8 py-6 bg-gradient-to-r from-primary-500/5 via-white/50 to-secondary-500/5 flex gap-4">
         <button
           onClick={handleSave}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+          className="flex items-center justify-center gap-2 px-8 py-4 bg-white/80 text-secondary-700 rounded-xl hover:bg-white hover:shadow-lg border-2 border-secondary-500/30 hover:border-secondary-500/50 transition-all duration-300 font-semibold group"
         >
-          <Save className="w-5 h-5" />
-          Save Draft
+          <Save className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+          <span>Save Draft</span>
         </button>
         <button
           onClick={handleNext}
-          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all font-medium"
+          className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 text-white rounded-xl hover:shadow-xl hover:shadow-primary-500/50 hover:scale-[1.02] transition-all duration-300 font-bold group relative overflow-hidden"
         >
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000" aria-hidden="true"></div>
           {activeSection === 'skills' ? (
             <>
-              <Eye className="w-5 h-5" />
-              Preview Resume
+              <Eye className="w-5 h-5 relative z-10 group-hover:scale-110 transition-transform duration-300" />
+              <span className="relative z-10">Preview Resume</span>
             </>
           ) : (
             <>
-              Next
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="relative z-10">Next Section</span>
+              <svg className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </>

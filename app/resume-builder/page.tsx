@@ -63,7 +63,7 @@ export default function ResumeBuilderPage() {
         <div className="absolute right-[-10%] top-20 h-72 w-72 rounded-full bg-secondary-500/15 blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-12 py-10">
         {/* Header */}
         <div className="text-center mb-8 animate-[floatUp_0.85s_ease-out]">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -106,9 +106,9 @@ export default function ResumeBuilderPage() {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
           {/* Left Column - Form/Input */}
-          <div className="lg:col-span-2">
+          <div className="xl:col-span-8">
             {step === 'build' && (
               <ResumeBuilderForm
                 initialData={resumeData}
@@ -136,33 +136,33 @@ export default function ResumeBuilderPage() {
           </div>
 
           {/* Right Column - Tips */}
-          <div className="space-y-6">
+          <div className="xl:col-span-4 space-y-6">
             {/* Tips Card */}
-            <div className="card border-primary-200/50 bg-gradient-to-br from-primary-50/50 to-white">
-              <h3 className="feature-heading text-lg font-semibold mb-4 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-500/15 text-primary-600">
-                  <TrendingUp className="w-4 h-4" />
+            <div className="card border-primary-200/50 bg-gradient-to-br from-primary-50/50 to-white sticky top-6">
+              <div className="flex items-center gap-2 mb-3 pb-3 border-b border-primary-200/50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500/20 to-primary-600/20 border border-primary-500/30">
+                  <TrendingUp className="w-4 h-4 text-primary-600" />
                 </div>
-                Pro Tips
-              </h3>
-              <ul className="space-y-3 text-sm text-secondary-700">
-                <li className="flex items-start gap-2">
+                <h3 className="text-base font-bold text-gray-900">Pro Tips</h3>
+              </div>
+              <ul className="space-y-2 text-sm text-secondary-700">
+                <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-primary-50/50 transition-colors duration-200">
                   <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Use action verbs to start bullet points</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-primary-50/50 transition-colors duration-200">
                   <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Quantify achievements with numbers</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-primary-50/50 transition-colors duration-200">
                   <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Highlight relevant skills and experience</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-primary-50/50 transition-colors duration-200">
                   <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Keep it concise (1-2 pages max)</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-primary-50/50 transition-colors duration-200">
                   <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Proofread for spelling and grammar</span>
                 </li>
@@ -170,27 +170,27 @@ export default function ResumeBuilderPage() {
             </div>
 
             {/* Best Practices */}
-            <div className="card">
-              <h3 className="feature-heading text-lg font-semibold mb-4 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-500/15 text-yellow-600">
-                  <Lightbulb className="w-4 h-4" />
+            <div className="card bg-gradient-to-br from-yellow-50/50 to-white border-yellow-200/50">
+              <div className="flex items-center gap-2 mb-3 pb-3 border-b border-yellow-200/50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 border border-yellow-500/30">
+                  <Lightbulb className="w-4 h-4 text-yellow-600" />
                 </div>
-                Best Practices
-              </h3>
-              <ul className="space-y-3 text-sm text-secondary-700">
-                <li className="flex items-start gap-2">
+                <h3 className="text-base font-bold text-gray-900">Best Practices</h3>
+              </div>
+              <ul className="space-y-2 text-sm text-secondary-700">
+                <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-yellow-50/50 transition-colors duration-200">
                   <span className="text-primary-600 font-bold">•</span>
                   <span>Include contact information at the top</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-yellow-50/50 transition-colors duration-200">
                   <span className="text-primary-600 font-bold">•</span>
                   <span>List work experience in reverse chronological order</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-yellow-50/50 transition-colors duration-200">
                   <span className="text-primary-600 font-bold">•</span>
                   <span>Focus on achievements, not just responsibilities</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2 p-2 rounded-lg hover:bg-yellow-50/50 transition-colors duration-200">
                   <span className="text-primary-600 font-bold">•</span>
                   <span>Tailor your resume for each application</span>
                 </li>
