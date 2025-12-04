@@ -18,6 +18,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import ProfileCard from '@/components/ProfileCard'
 import TabNavigation from '@/components/TabNavigation'
+import MentorScoreCard from '@/components/MentorScoreCard'
 
 interface Webinar {
   _id: string
@@ -196,6 +197,11 @@ export default function MentorHomepage() {
             <>
               {activeTab === 'overview' && (
                 <div className="space-y-10">
+                  {/* Mentor Score Card */}
+                  <div className="animate-[floatUp_0.85s_ease-out_0.1s_both]">
+                    <MentorScoreCard />
+                  </div>
+
                   {/* Stats Grid */}
         <div className="mb-10 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div className="card relative overflow-hidden group/stat hover:shadow-2xl hover:shadow-primary-500/30 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02]">
