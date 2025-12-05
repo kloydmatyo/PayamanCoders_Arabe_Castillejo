@@ -1,5 +1,6 @@
 'use client'
 
+import { Metadata } from 'next'
 import Hero from '@/components/LandingPage/Hero'
 import Features from '@/components/LandingPage/Features'
 import Stats from '@/components/LandingPage/Stats'
