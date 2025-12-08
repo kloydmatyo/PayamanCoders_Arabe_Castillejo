@@ -1,7 +1,7 @@
-import amqp, { Channel, Connection } from 'amqplib';
+import amqp from 'amqplib';
 
-let connection: Connection | null = null;
-let channel: Channel | null = null;
+let connection: any = null;
+let channel: any = null;
 
 export const QUEUES = {
   EMAIL: 'email_queue',
@@ -11,14 +11,15 @@ export const QUEUES = {
   REPORTS: 'reports_queue',
 } as const;
 
-export async function getRabbitMQConnection(): Promise<Connection> {
+export async function getRabbitMQConnection(): Promise<any> {
   if (!connection) {
     const rabbitUrl = process.env.RABBITMQ_URL || 'amqp://localhost:5672';
     
     try {
-      connection = await amqp.connect(rabbitUrl);
+      const conn = await amqp.connect(rabbitUrl);
+      connection = conn;
       
-      connection.on('error', (err) => {
+      connection.on('error', (err: Error) => {
         console.error('RabbitMQ Connection Error:', err);
         connection = null;
         channel = null;
@@ -40,7 +41,7 @@ export async function getRabbitMQConnection(): Promise<Connection> {
   return connection;
 }
 
-export async function getRabbitMQChannel(): Promise<Channel> {
+export async function getRabbitMQChannel(): Promise<any> {
   if (!channel) {
     const conn = await getRabbitMQConnection();
     channel = await conn.createChannel();
@@ -90,7 +91,7 @@ export const queue = {
       
       await ch.consume(
         queueName,
-        async (msg) => {
+        async (msg: any) => {
           if (!msg) return;
 
           try {

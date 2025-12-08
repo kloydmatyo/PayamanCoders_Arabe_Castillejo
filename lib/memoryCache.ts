@@ -19,11 +19,15 @@ class MemoryCache {
 
   private cleanup() {
     const now = Date.now();
-    for (const [key, entry] of this.cache.entries()) {
+    const keysToDelete: string[] = [];
+    
+    this.cache.forEach((entry, key) => {
       if (entry.expiresAt < now) {
-        this.cache.delete(key);
+        keysToDelete.push(key);
       }
-    }
+    });
+    
+    keysToDelete.forEach(key => this.cache.delete(key));
   }
 
   get<T>(key: string): T | null {
